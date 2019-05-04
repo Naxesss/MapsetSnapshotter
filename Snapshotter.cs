@@ -12,7 +12,7 @@ namespace MapsetSnapshotter
 {
     public class Snapshotter
     {
-        private static string fileNameFormat = "yyyy-MM-dd HH-mm-ss";
+        private const string fileNameFormat = "yyyy-MM-dd HH-mm-ss";
 
         public enum DiffType
         {
@@ -232,7 +232,7 @@ namespace MapsetSnapshotter
                 }
             }
         }
-
+        
         public static IEnumerable<DiffInstance> TranslateComparison(IEnumerable<DiffInstance> aDiffs)
         {
             foreach (string section in aDiffs.Select(aDiff => aDiff.section).Distinct())
@@ -241,7 +241,7 @@ namespace MapsetSnapshotter
 
                 DiffTranslator translator = TranslatorRegistry.GetTranslators().FirstOrDefault(aTranslator => aTranslator.Section == section);
                 if (translator != null)
-                    foreach (DiffInstance diff in translator.Difference(diffs))
+                    foreach (DiffInstance diff in translator.Translate(diffs))
                         yield return diff;
                 else
                     foreach (DiffInstance diff in diffs)
@@ -346,14 +346,14 @@ namespace MapsetSnapshotter
                             DiffType.Changed, details, addition.snapshotCreationDate);
                     }
                     else
-                        yield return Snapshotter.GetTranslatedSettingDiff(
+                        yield return GetTranslatedSettingDiff(
                             aSectionName, aTranslateFunc,
                             setting, addition,
                             removedSetting, removal);
                 }
                 else
                 {
-                    yield return Snapshotter.GetTranslatedSettingDiff(
+                    yield return GetTranslatedSettingDiff(
                         aSectionName, aTranslateFunc, setting, addition);
                 }
             }
@@ -362,7 +362,7 @@ namespace MapsetSnapshotter
             {
                 Setting setting = new Setting(removal.difference);
 
-                yield return Snapshotter.GetTranslatedSettingDiff(
+                yield return GetTranslatedSettingDiff(
                     aSectionName, aTranslateFunc, setting, removal);
             }
         }
