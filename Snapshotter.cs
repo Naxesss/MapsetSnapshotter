@@ -11,7 +11,7 @@ namespace MapsetSnapshotter
 {
     public class Snapshotter
     {
-        private static string mFileNameFormat = "yyyy-MM-dd HH-mm-ss";
+        private static string fileNameFormat = "yyyy-MM-dd HH-mm-ss";
 
         public enum DiffType
         {
@@ -22,207 +22,207 @@ namespace MapsetSnapshotter
 
         public struct Snapshot
         {
-            public DateTime mCreationTime;
-            public string mBeatmapSetId;
-            public string mBeatmapId;
-            public string mSaveName;
-            public string mCode;
+            public DateTime creationTime;
+            public string beatmapSetId;
+            public string beatmapId;
+            public string saveName;
+            public string code;
 
             public Snapshot(DateTime aCreationTime, string aBeatmapSetId, string aBeatmapId, string aSaveName, string aCode)
             {
-                mCreationTime = aCreationTime;
-                mBeatmapSetId = aBeatmapSetId;
-                mBeatmapId = aBeatmapId;
-                mSaveName = aSaveName;
-                mCode = aCode;
+                creationTime = aCreationTime;
+                beatmapSetId = aBeatmapSetId;
+                beatmapId = aBeatmapId;
+                saveName = aSaveName;
+                code = aCode;
             }
         }
 
         public static void SnapshotBeatmapSet(BeatmapSet aBeatmapSet)
         {
-            DateTime myCreationDate = DateTime.UtcNow;
-            string myBeatmapSetId = null;
+            DateTime creationDate = DateTime.UtcNow;
+            string beatmapSetId = null;
 
-            foreach (Beatmap myBeatmap in aBeatmapSet.beatmaps)
+            foreach (Beatmap beatmap in aBeatmapSet.beatmaps)
             {
-                myBeatmapSetId = myBeatmap.metadataSettings.beatmapSetId.ToString();
-                string myBeatmapId = myBeatmap.metadataSettings.beatmapId.ToString();
+                beatmapSetId = beatmap.metadataSettings.beatmapSetId.ToString();
+                string beatmapId = beatmap.metadataSettings.beatmapId.ToString();
 
-                foreach (Beatmap myOtherBeatmap in aBeatmapSet.beatmaps)
+                foreach (Beatmap otherBeatmap in aBeatmapSet.beatmaps)
                 {
-                    if (myOtherBeatmap.metadataSettings.beatmapId == myBeatmap.metadataSettings.beatmapId)
+                    if (otherBeatmap.metadataSettings.beatmapId == beatmap.metadataSettings.beatmapId)
                     {
-                        if (myBeatmap.mapPath != null && myOtherBeatmap.mapPath != null)
+                        if (beatmap.mapPath != null && otherBeatmap.mapPath != null)
                         {
-                            DateTime myDate = File.GetCreationTimeUtc(myBeatmap.mapPath);
-                            DateTime myOtherDate = File.GetCreationTimeUtc(myOtherBeatmap.mapPath);
+                            DateTime date = File.GetCreationTimeUtc(beatmap.mapPath);
+                            DateTime otherDate = File.GetCreationTimeUtc(otherBeatmap.mapPath);
 
                             // since I don't save the name of the file in the snapshots
                             // having the same id would override the previous, even if the previous was newer
-                            if (myDate < myOtherDate)
+                            if (date < otherDate)
                                 return;
                         }
                     }
                 }
 
                 // ./snapshots/571202/258378/2019-01-26 22-12-49
-                string mySaveDirectory = "snapshots/" + myBeatmapSetId + "/" + myBeatmapId;
-                string mySaveName = myCreationDate.ToString(mFileNameFormat) + ".osu";
+                string saveDirectory = "snapshots/" + beatmapSetId + "/" + beatmapId;
+                string saveName = creationDate.ToString(fileNameFormat) + ".osu";
 
-                List<Snapshot> mySnapshots = GetSnapshots(myBeatmapSetId, myBeatmapId).ToList();
-                bool myShouldSave = true;
+                List<Snapshot> snapshots = GetSnapshots(beatmapSetId, beatmapId).ToList();
+                bool shouldSave = true;
 
                 // duplicates would quickly take up a lot of memory
-                foreach (Snapshot mySnapshot in mySnapshots)
-                    if (mySnapshot.mCreationTime == mySnapshots.Max(aSnapshot => aSnapshot.mCreationTime))
-                        if (mySnapshot.mCode == myBeatmap.code)
-                            myShouldSave = false;
+                foreach (Snapshot snapshot in snapshots)
+                    if (snapshot.creationTime == snapshots.Max(aSnapshot => aSnapshot.creationTime))
+                        if (snapshot.code == beatmap.code)
+                            shouldSave = false;
 
-                if (myShouldSave)
+                if (shouldSave)
                 {
-                    if (!Directory.Exists(mySaveDirectory))
-                        Directory.CreateDirectory(mySaveDirectory);
+                    if (!Directory.Exists(saveDirectory))
+                        Directory.CreateDirectory(saveDirectory);
 
-                    File.WriteAllText(mySaveDirectory + "/" + mySaveName, myBeatmap.code);
+                    File.WriteAllText(saveDirectory + "/" + saveName, beatmap.code);
                 }
             }
 
-            StringBuilder myFileSnapshot = new StringBuilder("[Files]\r\n");
+            StringBuilder fileSnapshot = new StringBuilder("[Files]\r\n");
 
-            foreach (string myFilePath in aBeatmapSet.songFilePaths)
+            foreach (string filePath in aBeatmapSet.songFilePaths)
             {
-                if (myBeatmapSetId == null)
+                if (beatmapSetId == null)
                     break;
 
-                if (!myFilePath.EndsWith(".osu") && !myFilePath.EndsWith(".osb"))
+                if (!filePath.EndsWith(".osu") && !filePath.EndsWith(".osb"))
                 {
-                    string myFileName = myFilePath.Split('/', '\\').Last();
+                    string fileName = filePath.Split('/', '\\').Last();
 
-                    byte[] myBytes = File.ReadAllBytes(myFilePath);
-                    byte[] myHashBytes = SHA1.Create().ComputeHash(myBytes);
+                    byte[] bytes = File.ReadAllBytes(filePath);
+                    byte[] hashBytes = SHA1.Create().ComputeHash(bytes);
 
-                    StringBuilder myHash = new StringBuilder();
-                    foreach (byte myHashByte in myHashBytes)
-                        myHash.Append(myHashByte.ToString("X2"));
+                    StringBuilder hash = new StringBuilder();
+                    foreach (byte hashByte in hashBytes)
+                        hash.Append(hashByte.ToString("X2"));
 
-                    myFileSnapshot.Append(myFileName + ": " + myHash.ToString() + "\r\n");
+                    fileSnapshot.Append(fileName + ": " + hash.ToString() + "\r\n");
                 }
             }
 
-            string myFileSnapshotString = myFileSnapshot.ToString();
-            if (myFileSnapshotString.Length > 0)
+            string fileSnapshotString = fileSnapshot.ToString();
+            if (fileSnapshotString.Length > 0)
             {
-                string myFilesSnapshotDirectory = "snapshots/" + myBeatmapSetId + "/files";
-                string myFilesSnapshotName = myFilesSnapshotDirectory + "/" + myCreationDate.ToString(mFileNameFormat) + ".txt";
+                string filesSnapshotDirectory = "snapshots/" + beatmapSetId + "/files";
+                string filesSnapshotName = filesSnapshotDirectory + "/" + creationDate.ToString(fileNameFormat) + ".txt";
 
-                List<Snapshot> mySnapshots = GetSnapshots(myBeatmapSetId, "files").ToList();
-                bool myShouldSave = true;
+                List<Snapshot> snapshots = GetSnapshots(beatmapSetId, "files").ToList();
+                bool shouldSave = true;
 
-                foreach (Snapshot mySnapshot in mySnapshots)
-                    if (mySnapshot.mCreationTime == mySnapshots.Max(aSnapshot => aSnapshot.mCreationTime))
-                        if (mySnapshot.mCode == myFileSnapshotString)
-                            myShouldSave = false;
+                foreach (Snapshot snapshot in snapshots)
+                    if (snapshot.creationTime == snapshots.Max(aSnapshot => aSnapshot.creationTime))
+                        if (snapshot.code == fileSnapshotString)
+                            shouldSave = false;
 
-                if (myShouldSave)
+                if (shouldSave)
                 {
-                    if (!Directory.Exists(myFilesSnapshotDirectory))
-                        Directory.CreateDirectory(myFilesSnapshotDirectory);
+                    if (!Directory.Exists(filesSnapshotDirectory))
+                        Directory.CreateDirectory(filesSnapshotDirectory);
 
-                    File.WriteAllText(myFilesSnapshotName, myFileSnapshotString);
+                    File.WriteAllText(filesSnapshotName, fileSnapshotString);
                 }
             }
         }
 
         public static IEnumerable<Snapshot> GetSnapshots(Beatmap aBeatmap)
         {
-            IEnumerable<Snapshot> mySnapshots = GetSnapshots(
+            IEnumerable<Snapshot> snapshots = GetSnapshots(
                 aBeatmap.metadataSettings.beatmapSetId.ToString(),
                 aBeatmap.metadataSettings.beatmapId.ToString());
-            return mySnapshots;
+            return snapshots;
         }
 
         public static IEnumerable<Snapshot> GetSnapshots(string aBeatmapSetId, string aBeatmapId)
         {
-            string mySaveDirectory = "snapshots/" + aBeatmapSetId + "/" + aBeatmapId;
+            string saveDirectory = "snapshots/" + aBeatmapSetId + "/" + aBeatmapId;
 
-            if (Directory.Exists(mySaveDirectory))
+            if (Directory.Exists(saveDirectory))
             {
-                string[] myFilePaths = Directory.GetFiles(mySaveDirectory);
+                string[] filePaths = Directory.GetFiles(saveDirectory);
 
-                for (int i = 0; i < myFilePaths.Length; ++i)
+                for (int i = 0; i < filePaths.Length; ++i)
                 {
-                    int myForwardSlash = myFilePaths[i].LastIndexOf("/");
-                    int myBackSlash = myFilePaths[i].LastIndexOf("\\");
+                    int forwardSlash = filePaths[i].LastIndexOf("/");
+                    int backSlash = filePaths[i].LastIndexOf("\\");
 
-                    string mySaveName = myFilePaths[i].Substring(Math.Max(myForwardSlash, myBackSlash) + 1);
-                    string myCode = File.ReadAllText(myFilePaths[i]);
+                    string saveName = filePaths[i].Substring(Math.Max(forwardSlash, backSlash) + 1);
+                    string code = File.ReadAllText(filePaths[i]);
 
-                    DateTime myCreationTime = DateTime.ParseExact(mySaveName.Split('.')[0], mFileNameFormat, null);
+                    DateTime creationTime = DateTime.ParseExact(saveName.Split('.')[0], fileNameFormat, null);
 
-                    yield return new Snapshot(myCreationTime, aBeatmapSetId, aBeatmapId, mySaveName, myCode);
+                    yield return new Snapshot(creationTime, aBeatmapSetId, aBeatmapId, saveName, code);
                 }
             }
         }
 
         public static IEnumerable<Snapshot> GetLatestSnapshots(DateTime aDate, BeatmapSet aBeatmapSet)
         {
-            foreach (Beatmap myBeatmap in aBeatmapSet.beatmaps)
+            foreach (Beatmap beatmap in aBeatmapSet.beatmaps)
             {
-                IEnumerable<Snapshot> mySnapshots = GetSnapshots(myBeatmap).OrderByDescending(aSnapshot => aSnapshot.mCreationTime);
+                IEnumerable<Snapshot> snapshots = GetSnapshots(beatmap).OrderByDescending(aSnapshot => aSnapshot.creationTime);
 
-                yield return mySnapshots.LastOrDefault(aSnapshot => aSnapshot.mCreationTime <= aDate);
+                yield return snapshots.LastOrDefault(aSnapshot => aSnapshot.creationTime <= aDate);
             }
         }
 
         public static IEnumerable<DiffInstance> Compare(Snapshot aSnapshot, string aCurrentCode)
         {
-            List<DiffInstance> myDifferences = new List<DiffInstance>();
+            List<DiffInstance> differences = new List<DiffInstance>();
 
-            string[] mySnapshotLines = aSnapshot.mCode.Replace("\r", "").Split('\n');
-            string[] myCurrentLines = aCurrentCode.Replace("\r", "").Split('\n');
+            string[] snapshotLines = aSnapshot.code.Replace("\r", "").Split('\n');
+            string[] currentLines = aCurrentCode.Replace("\r", "").Split('\n');
 
-            int myMaxLength = Math.Max(mySnapshotLines.Length, myCurrentLines.Length);
-            int myMinLength = Math.Min(mySnapshotLines.Length, myCurrentLines.Length);
+            int maxLength = Math.Max(snapshotLines.Length, currentLines.Length);
+            int minLength = Math.Min(snapshotLines.Length, currentLines.Length);
 
-            string myPrevSection = null;
-            string myCurSection = null;
+            string prevSection = null;
+            string curSection = null;
 
-            int myOffset = 0;
-            for (int i = 0; i < myMaxLength; ++i)
+            int offset = 0;
+            for (int i = 0; i < maxLength; ++i)
             {
-                if (i >= myMinLength || i + myOffset >= myCurrentLines.Length)
+                if (i >= minLength || i + offset >= currentLines.Length)
                     break;
                 else
                 {
-                    if (myCurrentLines[i + myOffset].StartsWith("[") && myCurrentLines[i + myOffset].EndsWith("]"))
-                        myCurSection = myCurrentLines[i + myOffset];
+                    if (currentLines[i + offset].StartsWith("[") && currentLines[i + offset].EndsWith("]"))
+                        curSection = currentLines[i + offset];
 
-                    if (mySnapshotLines[i].StartsWith("[") && mySnapshotLines[i].EndsWith("]"))
-                        myPrevSection = mySnapshotLines[i];
+                    if (snapshotLines[i].StartsWith("[") && snapshotLines[i].EndsWith("]"))
+                        prevSection = snapshotLines[i];
 
-                    if (mySnapshotLines[i] != myCurrentLines[i + myOffset])
+                    if (snapshotLines[i] != currentLines[i + offset])
                     {
-                        int myOriginalOffset = myOffset;
-                        for (; myOffset < myMinLength - i; ++myOffset)
-                            if (mySnapshotLines[i] == myCurrentLines[i + myOffset])
+                        int originalOffset = offset;
+                        for (; offset < minLength - i; ++offset)
+                            if (snapshotLines[i] == currentLines[i + offset])
                                 break;
 
-                        if (myOffset >= myMinLength - i)
+                        if (offset >= minLength - i)
                         {
                             // removed
-                            myOffset = myOriginalOffset;
-                            --myOffset;
+                            offset = originalOffset;
+                            --offset;
 
                             yield return new DiffInstance(
-                                mySnapshotLines[i], myPrevSection.Substring(1, myPrevSection.Length - 2),
-                                DiffType.Removed, new List<string>(), aSnapshot.mCreationTime);
+                                snapshotLines[i], prevSection.Substring(1, prevSection.Length - 2),
+                                DiffType.Removed, new List<string>(), aSnapshot.creationTime);
                         }
                         else
                             // added
-                            for (int j = myOriginalOffset; j < myOffset; j++)
+                            for (int j = originalOffset; j < offset; j++)
                                 yield return new DiffInstance(
-                                    myCurrentLines[i + j], myPrevSection.Substring(1, myPrevSection.Length - 2),
-                                    DiffType.Added, new List<string>(), aSnapshot.mCreationTime);
+                                    currentLines[i + j], prevSection.Substring(1, prevSection.Length - 2),
+                                    DiffType.Added, new List<string>(), aSnapshot.creationTime);
                     }
                 }
             }
@@ -240,17 +240,17 @@ namespace MapsetSnapshotter
         public static IEnumerable<DiffInstance> TranslateComparison(IEnumerable<DiffInstance> aDiffs)
         {
             InitTranslators();
-            foreach (string mySection in aDiffs.Select(aDiff => aDiff.mSection).Distinct())
+            foreach (string section in aDiffs.Select(aDiff => aDiff.section).Distinct())
             {
-                IEnumerable<DiffInstance> myDiffs = aDiffs.Where(aDiff => aDiff.mSection == mySection && aDiff.mDifference.Length > 0);
+                IEnumerable<DiffInstance> diffs = aDiffs.Where(aDiff => aDiff.section == section && aDiff.difference.Length > 0);
 
-                DiffTranslator myTranslator = mTranslators.FirstOrDefault(aTranslator => aTranslator.Section == mySection);
-                if (myTranslator != null)
-                    foreach (DiffInstance myDiff in myTranslator.Difference(myDiffs))
-                        yield return myDiff;
+                DiffTranslator translator = mTranslators.FirstOrDefault(aTranslator => aTranslator.Section == section);
+                if (translator != null)
+                    foreach (DiffInstance diff in translator.Difference(diffs))
+                        yield return diff;
                 else
-                    foreach (DiffInstance myDiff in myDiffs)
-                        yield return myDiff;
+                    foreach (DiffInstance diff in diffs)
+                        yield return diff;
             }
         }
 
@@ -279,96 +279,96 @@ namespace MapsetSnapshotter
             Setting aSetting, DiffInstance aDiff,
             Setting? anOtherSetting = null, DiffInstance anOtherDiff = null)
         {
-            string myKey = aTranslateFunc != null ? aTranslateFunc(aSetting.mKey) : aSetting.mKey;
+            string key = aTranslateFunc != null ? aTranslateFunc(aSetting.mKey) : aSetting.mKey;
             if (anOtherSetting == null || anOtherDiff == null)
             {
-                if (aDiff.mDiffType == DiffType.Added)
-                    return new DiffInstance(myKey + " was added and set to " + aSetting.mValue + ".",
-                        aSectionName, DiffType.Added, new List<string>(), aDiff.mSnapshotCreationDate);
+                if (aDiff.diffType == DiffType.Added)
+                    return new DiffInstance(key + " was added and set to " + aSetting.mValue + ".",
+                        aSectionName, DiffType.Added, new List<string>(), aDiff.snapshotCreationDate);
                 else
-                    return new DiffInstance(myKey + " was removed and is no longer set to " + aSetting.mValue + ".",
-                        aSectionName, DiffType.Removed, new List<string>(), aDiff.mSnapshotCreationDate);
+                    return new DiffInstance(key + " was removed and is no longer set to " + aSetting.mValue + ".",
+                        aSectionName, DiffType.Removed, new List<string>(), aDiff.snapshotCreationDate);
             }
             else
             {
-                return new DiffInstance(myKey + " was changed from " + anOtherSetting.GetValueOrDefault().mValue + " to " + aSetting.mValue + ".",
-                    aSectionName, DiffType.Changed, new List<string>(), aDiff.mSnapshotCreationDate);
+                return new DiffInstance(key + " was changed from " + anOtherSetting.GetValueOrDefault().mValue + " to " + aSetting.mValue + ".",
+                    aSectionName, DiffType.Changed, new List<string>(), aDiff.snapshotCreationDate);
             }
         }
 
         public static IEnumerable<DiffInstance> TranslateSettings(string aSectionName, IEnumerable<DiffInstance> aDiffs, Func<string, string> aTranslateFunc)
         {
-            List<DiffInstance> myAdded = aDiffs.Where(aDiff => aDiff.mDiffType == DiffType.Added).ToList();
-            List<DiffInstance> myRemoved = aDiffs.Where(aDiff => aDiff.mDiffType == DiffType.Removed).ToList();
+            List<DiffInstance> added = aDiffs.Where(aDiff => aDiff.diffType == DiffType.Added).ToList();
+            List<DiffInstance> removed = aDiffs.Where(aDiff => aDiff.diffType == DiffType.Removed).ToList();
 
-            foreach (DiffInstance myAddition in myAdded)
+            foreach (DiffInstance addition in added)
             {
-                Setting mySetting = new Setting(myAddition.mDifference);
-                DiffInstance myRemoval = myRemoved.FirstOrDefault(aDiff => new Setting(aDiff.mDifference).mKey == mySetting.mKey);
+                Setting setting = new Setting(addition.difference);
+                DiffInstance removal = removed.FirstOrDefault(aDiff => new Setting(aDiff.difference).mKey == setting.mKey);
 
-                if (myRemoval != null && myRemoval.mDifference != null)
+                if (removal != null && removal.difference != null)
                 {
-                    Setting myRemovedSetting = new Setting(myRemoval.mDifference);
+                    Setting removedSetting = new Setting(removal.difference);
 
-                    myRemoved.Remove(myRemoval);
+                    removed.Remove(removal);
 
-                    if (myRemovedSetting.mKey == "Bookmarks")
+                    if (removedSetting.mKey == "Bookmarks")
                     {
-                        IEnumerable<double> myPrevBookmarks =
-                            myRemovedSetting.mValue.Split(',').Select(aValue => double.Parse(aValue.Trim()));
-                        IEnumerable<double> myCurBookmarks =
-                            mySetting.mValue.Split(',').Select(aValue => double.Parse(aValue.Trim()));
+                        IEnumerable<double> prevBookmarks =
+                            removedSetting.mValue.Split(',').Select(aValue => double.Parse(aValue.Trim()));
+                        IEnumerable<double> curBookmarks =
+                            setting.mValue.Split(',').Select(aValue => double.Parse(aValue.Trim()));
 
-                        IEnumerable<double> myRemovedBookmarks = myPrevBookmarks.Except(myCurBookmarks);
-                        IEnumerable<double> myAddedBookmarks = myCurBookmarks.Except(myPrevBookmarks);
+                        IEnumerable<double> removedBookmarks = prevBookmarks.Except(curBookmarks);
+                        IEnumerable<double> addedBookmarks = curBookmarks.Except(prevBookmarks);
 
-                        List<string> myDetails = new List<string>();
-                        if (myAddedBookmarks.Count() > 0)
-                            myDetails.Add("Added " + String.Join(", ", myAddedBookmarks.Select(aMark => Timestamp.Get(aMark))));
-                        if (myRemovedBookmarks.Count() > 0)
-                            myDetails.Add("Removed " + String.Join(", ", myRemovedBookmarks.Select(aMark => Timestamp.Get(aMark))));
+                        List<string> details = new List<string>();
+                        if (addedBookmarks.Count() > 0)
+                            details.Add("Added " + String.Join(", ", addedBookmarks.Select(aMark => Timestamp.Get(aMark))));
+                        if (removedBookmarks.Count() > 0)
+                            details.Add("Removed " + String.Join(", ", removedBookmarks.Select(aMark => Timestamp.Get(aMark))));
 
                         yield return new DiffInstance(
-                            aTranslateFunc(mySetting.mKey) + " were changed.", aSectionName,
-                            DiffType.Changed, myDetails, myAddition.mSnapshotCreationDate);
+                            aTranslateFunc(setting.mKey) + " were changed.", aSectionName,
+                            DiffType.Changed, details, addition.snapshotCreationDate);
                     }
-                    else if (myRemovedSetting.mKey == "Tags")
+                    else if (removedSetting.mKey == "Tags")
                     {
-                        IEnumerable<string> myPrevTags = myRemovedSetting.mValue.Split(' ').Select(aValue => aValue);
-                        IEnumerable<string> myCurTags = mySetting.mValue.Split(' ').Select(aValue => aValue);
+                        IEnumerable<string> prevTags = removedSetting.mValue.Split(' ').Select(aValue => aValue);
+                        IEnumerable<string> curTags = setting.mValue.Split(' ').Select(aValue => aValue);
 
-                        IEnumerable<string> myRemovedTags = myPrevTags.Except(myCurTags);
-                        IEnumerable<string> myAddedTags = myCurTags.Except(myPrevTags);
+                        IEnumerable<string> removedTags = prevTags.Except(curTags);
+                        IEnumerable<string> addedTags = curTags.Except(prevTags);
 
-                        List<string> myDetails = new List<string>();
-                        if (myAddedTags.Count() > 0)
-                            myDetails.Add("Added " + String.Join(", ", myAddedTags.Select(aMark => Timestamp.Get(aMark))));
-                        if (myRemovedTags.Count() > 0)
-                            myDetails.Add("Removed " + String.Join(", ", myRemovedTags.Select(aMark => Timestamp.Get(aMark))));
+                        List<string> details = new List<string>();
+                        if (addedTags.Count() > 0)
+                            details.Add("Added " + String.Join(", ", addedTags.Select(aMark => Timestamp.Get(aMark))));
+                        if (removedTags.Count() > 0)
+                            details.Add("Removed " + String.Join(", ", removedTags.Select(aMark => Timestamp.Get(aMark))));
 
                         yield return new DiffInstance(
-                            aTranslateFunc(mySetting.mKey) + " were changed.", aSectionName,
-                            DiffType.Changed, myDetails, myAddition.mSnapshotCreationDate);
+                            aTranslateFunc(setting.mKey) + " were changed.", aSectionName,
+                            DiffType.Changed, details, addition.snapshotCreationDate);
                     }
                     else
                         yield return Snapshotter.GetTranslatedSettingDiff(
                             aSectionName, aTranslateFunc,
-                            mySetting, myAddition,
-                            myRemovedSetting, myRemoval);
+                            setting, addition,
+                            removedSetting, removal);
                 }
                 else
                 {
                     yield return Snapshotter.GetTranslatedSettingDiff(
-                        aSectionName, aTranslateFunc, mySetting, myAddition);
+                        aSectionName, aTranslateFunc, setting, addition);
                 }
             }
 
-            foreach (DiffInstance myRemoval in myRemoved)
+            foreach (DiffInstance removal in removed)
             {
-                Setting mySetting = new Setting(myRemoval.mDifference);
+                Setting setting = new Setting(removal.difference);
 
                 yield return Snapshotter.GetTranslatedSettingDiff(
-                    aSectionName, aTranslateFunc, mySetting, myRemoval);
+                    aSectionName, aTranslateFunc, setting, removal);
             }
         }
     }

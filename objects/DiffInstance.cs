@@ -7,29 +7,29 @@ namespace MapsetSnapshotter
 {
     public class DiffInstance
     {
-        public string mDifference;
-        public string mSection;
-        public DiffType mDiffType;
-        public string mCustomTitle;
+        public string difference;
+        public string section;
+        public DiffType diffType;
+        public string customTitle;
 
-        public List<string> mDetails;
-        public string mIcon;
+        public List<string> details;
+        public string icon;
 
-        public DateTime mSnapshotCreationDate;
+        public DateTime snapshotCreationDate;
 
         public DiffInstance(string aDifference, string aSection, DiffType aDiffType, List<string> aDetails, DateTime aSnapshotCreationDate)
         {
-            mDifference = aDifference;
-            mSection = aSection;
-            mDiffType = aDiffType;
-            mCustomTitle = null;
+            difference = aDifference;
+            section = aSection;
+            diffType = aDiffType;
+            customTitle = null;
 
-            mDetails = aDetails;
-            mIcon = aDiffType == DiffType.Added ? "plus" :
+            details = aDetails;
+            icon = aDiffType == DiffType.Added ? "plus" :
                     aDiffType == DiffType.Removed ? "minus"
                                                     : "gear-blue";
 
-            mSnapshotCreationDate = aSnapshotCreationDate;
+            snapshotCreationDate = aSnapshotCreationDate;
         }
     }
 }
