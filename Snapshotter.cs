@@ -142,18 +142,14 @@ namespace MapsetSnapshotter
             }
         }
 
-        public static IEnumerable<Snapshot> GetSnapshots(Beatmap aBeatmap)
-        {
-            IEnumerable<Snapshot> snapshots = GetSnapshots(
+        public static IEnumerable<Snapshot> GetSnapshots(Beatmap aBeatmap) =>
+            GetSnapshots(
                 aBeatmap.metadataSettings.beatmapSetId.ToString(),
                 aBeatmap.metadataSettings.beatmapId.ToString());
-            return snapshots;
-        }
 
         public static IEnumerable<Snapshot> GetSnapshots(string aBeatmapSetId, string aBeatmapId)
         {
             string saveDirectory = "snapshots/" + aBeatmapSetId + "/" + aBeatmapId;
-
             if (Directory.Exists(saveDirectory))
             {
                 string[] filePaths = Directory.GetFiles(saveDirectory);
@@ -218,7 +214,7 @@ namespace MapsetSnapshotter
 
                         if (offset >= minLength - i)
                         {
-                            // removed
+                            // A line was removed.
                             offset = originalOffset;
                             --offset;
 
@@ -227,7 +223,7 @@ namespace MapsetSnapshotter
                                 DiffType.Removed, new List<string>(), aSnapshot.creationTime);
                         }
                         else
-                            // added
+                            // A line was added.
                             for (int j = originalOffset; j < offset; j++)
                                 yield return new DiffInstance(
                                     currentLines[i + j], prevSection.Substring(1, prevSection.Length - 2),
@@ -237,23 +233,13 @@ namespace MapsetSnapshotter
             }
         }
 
-        private static IEnumerable<DiffTranslator> mTranslators = null;
-        private static void InitTranslators()
-        {
-            if (mTranslators != null)
-                return;
-
-            mTranslators = TranslatorRegistry.GetTranslators();
-        }
-
         public static IEnumerable<DiffInstance> TranslateComparison(IEnumerable<DiffInstance> aDiffs)
         {
-            InitTranslators();
             foreach (string section in aDiffs.Select(aDiff => aDiff.section).Distinct())
             {
                 IEnumerable<DiffInstance> diffs = aDiffs.Where(aDiff => aDiff.section == section && aDiff.difference.Length > 0);
 
-                DiffTranslator translator = mTranslators.FirstOrDefault(aTranslator => aTranslator.Section == section);
+                DiffTranslator translator = TranslatorRegistry.GetTranslators().FirstOrDefault(aTranslator => aTranslator.Section == section);
                 if (translator != null)
                     foreach (DiffInstance diff in translator.Difference(diffs))
                         yield return diff;
