@@ -13,7 +13,6 @@ namespace MapsetSnapshotter.objects
         public string customTitle;
 
         public List<string> details;
-        public string icon;
 
         public DateTime snapshotCreationDate;
 
@@ -25,9 +24,6 @@ namespace MapsetSnapshotter.objects
             customTitle = null;
 
             details = aDetails;
-            icon = aDiffType == DiffType.Added ? "plus" :
-                    aDiffType == DiffType.Removed ? "minus"
-                                                    : "gear-blue";
 
             snapshotCreationDate = aSnapshotCreationDate;
         }
