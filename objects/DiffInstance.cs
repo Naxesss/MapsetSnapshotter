@@ -5,7 +5,7 @@ using static MapsetSnapshotter.Snapshotter;
 
 namespace MapsetSnapshotter
 {
-    class DiffInstance
+    public class DiffInstance
     {
         public string mDifference;
         public string mSection;

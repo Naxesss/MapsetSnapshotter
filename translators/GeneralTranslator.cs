@@ -4,9 +4,9 @@ using System.Text;
 
 namespace MapsetSnapshotter.translators
 {
-    class GeneralTranslator
+    public class GeneralTranslator
     {
-        class TranslatorGeneral
+        public class TranslatorGeneral : DiffTranslator
         {
             public static string mSectionName = "General";
 

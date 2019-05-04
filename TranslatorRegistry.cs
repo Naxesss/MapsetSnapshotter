@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MapsetSnapshotter
 {
-    class TranslatorRegistry
+    public class TranslatorRegistry
     {
         public static IEnumerable<DiffTranslator> GetTranslators()
         {

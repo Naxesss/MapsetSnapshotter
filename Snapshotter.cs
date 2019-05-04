@@ -8,7 +8,7 @@ using System.Text;
 
 namespace MapsetSnapshotter
 {
-    class Snapshotter
+    public class Snapshotter
     {
         private static string mFileNameFormat = "yyyy-MM-dd HH-mm-ss";
 
@@ -339,13 +339,13 @@ namespace MapsetSnapshotter
             foreach (DiffInstance myAddition in myAdded)
             {
                 Setting mySetting = new Setting(myAddition.mDifference);
-                DiffInstance? myRemoval = myRemoved.FirstOrDefault(aDiff => new Setting(aDiff.mDifference).mKey == mySetting.mKey);
+                DiffInstance myRemoval = myRemoved.FirstOrDefault(aDiff => new Setting(aDiff.mDifference).mKey == mySetting.mKey);
 
-                if (myRemoval != null && myRemoval.GetValueOrDefault().mDifference != null)
+                if (myRemoval != null && myRemoval.mDifference != null)
                 {
-                    Setting myRemovedSetting = new Setting(myRemoval.GetValueOrDefault().mDifference);
+                    Setting myRemovedSetting = new Setting(myRemoval.mDifference);
 
-                    myRemoved.Remove(myRemoval.GetValueOrDefault());
+                    myRemoved.Remove(myRemoval);
 
                     if (myRemovedSetting.mKey == "Bookmarks")
                     {

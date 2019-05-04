@@ -4,7 +4,7 @@ using System.Text;
 
 namespace MapsetSnapshotter
 {
-    class DiffTranslator
+    public class DiffTranslator
     {
         public Type mClass;
         public string mSection;
