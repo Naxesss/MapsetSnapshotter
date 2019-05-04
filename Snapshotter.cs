@@ -42,11 +42,10 @@ namespace MapsetSnapshotter
         public static void SnapshotBeatmapSet(BeatmapSet aBeatmapSet)
         {
             DateTime creationDate = DateTime.UtcNow;
-            string beatmapSetId = null;
 
             foreach (Beatmap beatmap in aBeatmapSet.beatmaps)
             {
-                beatmapSetId = beatmap.metadataSettings.beatmapSetId.ToString();
+                string beatmapSetId = beatmap.metadataSettings.beatmapSetId.ToString();
                 string beatmapId = beatmap.metadataSettings.beatmapId.ToString();
 
                 foreach (Beatmap otherBeatmap in aBeatmapSet.beatmaps)
@@ -57,23 +56,19 @@ namespace MapsetSnapshotter
                         {
                             DateTime date = File.GetCreationTimeUtc(beatmap.mapPath);
                             DateTime otherDate = File.GetCreationTimeUtc(otherBeatmap.mapPath);
-
-                            // since I don't save the name of the file in the snapshots
-                            // having the same id would override the previous, even if the previous was newer
+                            
+                            // We only save the beatmap id, so if we have two of the same beatmap
+                            // in the folder, we should only save the newest one.
                             if (date < otherDate)
                                 return;
                         }
                     }
                 }
-
-                // ./snapshots/571202/258378/2019-01-26 22-12-49
-                string saveDirectory = "snapshots/" + beatmapSetId + "/" + beatmapId;
-                string saveName = creationDate.ToString(fileNameFormat) + ".osu";
-
+                
                 List<Snapshot> snapshots = GetSnapshots(beatmapSetId, beatmapId).ToList();
                 bool shouldSave = true;
 
-                // duplicates would quickly take up a lot of memory
+                // If our snapshot is up to date, saving is redundant.
                 foreach (Snapshot snapshot in snapshots)
                     if (snapshot.creationTime == snapshots.Max(aSnapshot => aSnapshot.creationTime))
                         if (snapshot.code == beatmap.code)
@@ -81,12 +76,23 @@ namespace MapsetSnapshotter
 
                 if (shouldSave)
                 {
+                    // ./snapshots/571202/258378/2019-01-26 22-12-49
+                    string saveDirectory = "snapshots/" + beatmapSetId + "/" + beatmapId;
+                    string saveName = creationDate.ToString(fileNameFormat) + ".osu";
+
                     if (!Directory.Exists(saveDirectory))
                         Directory.CreateDirectory(saveDirectory);
 
                     File.WriteAllText(saveDirectory + "/" + saveName, beatmap.code);
                 }
             }
+
+            SnapshotFiles(aBeatmapSet, creationDate);
+        }
+
+        private static void SnapshotFiles(BeatmapSet aBeatmapSet, DateTime aCreationTime)
+        {
+            string beatmapSetId = aBeatmapSet.beatmaps?.First().metadataSettings.beatmapSetId.ToString();
 
             StringBuilder fileSnapshot = new StringBuilder("[Files]\r\n");
 
@@ -95,10 +101,12 @@ namespace MapsetSnapshotter
                 if (beatmapSetId == null)
                     break;
 
+                // We already track .osu and .osb files so we ignore these.
                 if (!filePath.EndsWith(".osu") && !filePath.EndsWith(".osb"))
                 {
                     string fileName = filePath.Split('/', '\\').Last();
 
+                    // Storing the complete file would quickly take up a lot of memory so we hash it instead.
                     byte[] bytes = File.ReadAllBytes(filePath);
                     byte[] hashBytes = SHA1.Create().ComputeHash(bytes);
 
@@ -113,9 +121,6 @@ namespace MapsetSnapshotter
             string fileSnapshotString = fileSnapshot.ToString();
             if (fileSnapshotString.Length > 0)
             {
-                string filesSnapshotDirectory = "snapshots/" + beatmapSetId + "/files";
-                string filesSnapshotName = filesSnapshotDirectory + "/" + creationDate.ToString(fileNameFormat) + ".txt";
-
                 List<Snapshot> snapshots = GetSnapshots(beatmapSetId, "files").ToList();
                 bool shouldSave = true;
 
@@ -126,6 +131,9 @@ namespace MapsetSnapshotter
 
                 if (shouldSave)
                 {
+                    string filesSnapshotDirectory = "snapshots/" + beatmapSetId + "/files";
+                    string filesSnapshotName = filesSnapshotDirectory + "/" + aCreationTime.ToString(fileNameFormat) + ".txt";
+
                     if (!Directory.Exists(filesSnapshotDirectory))
                         Directory.CreateDirectory(filesSnapshotDirectory);
 
