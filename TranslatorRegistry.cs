@@ -16,7 +16,15 @@ namespace MapsetSnapshotter
             if (initialized)
                 return;
 
+            RegisterTranslator(new ColoursTranslator());
+            RegisterTranslator(new DifficultyTranslator());
+            RegisterTranslator(new EditorTranslator());
+            RegisterTranslator(new EventsTranslator());
+            RegisterTranslator(new FilesTranslator());
             RegisterTranslator(new GeneralTranslator());
+            RegisterTranslator(new HitObjectsTranslator());
+            RegisterTranslator(new MetadataTranslator());
+            RegisterTranslator(new TimingTranslator());
 
             initialized = true;
         }
