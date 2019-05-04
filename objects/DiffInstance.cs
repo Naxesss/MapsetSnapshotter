@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using static MapsetSnapshotter.Snapshotter;
 
-namespace MapsetSnapshotter
+namespace MapsetSnapshotter.objects
 {
     public class DiffInstance
     {

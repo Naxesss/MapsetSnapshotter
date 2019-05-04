@@ -1,5 +1,6 @@
 ﻿using MapsetParser.objects;
 using MapsetParser.statics;
+using MapsetSnapshotter.objects;
 using System;
 using System.Collections.Generic;
 using System.IO;
