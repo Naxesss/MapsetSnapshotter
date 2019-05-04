@@ -251,20 +251,20 @@ namespace MapsetSnapshotter
 
         public struct Setting
         {
-            public string mKey;
-            public string mValue;
+            public string key;
+            public string value;
 
             public Setting(string aCode)
             {
                 if (aCode.IndexOf(":") != -1)
                 {
-                    mKey = aCode.Substring(0, aCode.IndexOf(":")).Trim();
-                    mValue = aCode.Substring(aCode.IndexOf(":") + ":".Length).Trim();
+                    key = aCode.Substring(0, aCode.IndexOf(":")).Trim();
+                    value = aCode.Substring(aCode.IndexOf(":") + ":".Length).Trim();
                 }
                 else
                 {
-                    mKey = "A line";
-                    mValue = aCode;
+                    key = "A line";
+                    value = aCode;
                 }
             }
         }
@@ -274,19 +274,19 @@ namespace MapsetSnapshotter
             Setting aSetting, DiffInstance aDiff,
             Setting? anOtherSetting = null, DiffInstance anOtherDiff = null)
         {
-            string key = aTranslateFunc != null ? aTranslateFunc(aSetting.mKey) : aSetting.mKey;
+            string key = aTranslateFunc != null ? aTranslateFunc(aSetting.key) : aSetting.key;
             if (anOtherSetting == null || anOtherDiff == null)
             {
                 if (aDiff.diffType == DiffType.Added)
-                    return new DiffInstance(key + " was added and set to " + aSetting.mValue + ".",
+                    return new DiffInstance(key + " was added and set to " + aSetting.value + ".",
                         aSectionName, DiffType.Added, new List<string>(), aDiff.snapshotCreationDate);
                 else
-                    return new DiffInstance(key + " was removed and is no longer set to " + aSetting.mValue + ".",
+                    return new DiffInstance(key + " was removed and is no longer set to " + aSetting.value + ".",
                         aSectionName, DiffType.Removed, new List<string>(), aDiff.snapshotCreationDate);
             }
             else
             {
-                return new DiffInstance(key + " was changed from " + anOtherSetting.GetValueOrDefault().mValue + " to " + aSetting.mValue + ".",
+                return new DiffInstance(key + " was changed from " + anOtherSetting.GetValueOrDefault().value + " to " + aSetting.value + ".",
                     aSectionName, DiffType.Changed, new List<string>(), aDiff.snapshotCreationDate);
             }
         }
@@ -299,7 +299,7 @@ namespace MapsetSnapshotter
             foreach (DiffInstance addition in added)
             {
                 Setting setting = new Setting(addition.difference);
-                DiffInstance removal = removed.FirstOrDefault(aDiff => new Setting(aDiff.difference).mKey == setting.mKey);
+                DiffInstance removal = removed.FirstOrDefault(aDiff => new Setting(aDiff.difference).key == setting.key);
 
                 if (removal != null && removal.difference != null)
                 {
@@ -307,12 +307,12 @@ namespace MapsetSnapshotter
 
                     removed.Remove(removal);
 
-                    if (removedSetting.mKey == "Bookmarks")
+                    if (removedSetting.key == "Bookmarks")
                     {
                         IEnumerable<double> prevBookmarks =
-                            removedSetting.mValue.Split(',').Select(aValue => double.Parse(aValue.Trim()));
+                            removedSetting.value.Split(',').Select(aValue => double.Parse(aValue.Trim()));
                         IEnumerable<double> curBookmarks =
-                            setting.mValue.Split(',').Select(aValue => double.Parse(aValue.Trim()));
+                            setting.value.Split(',').Select(aValue => double.Parse(aValue.Trim()));
 
                         IEnumerable<double> removedBookmarks = prevBookmarks.Except(curBookmarks);
                         IEnumerable<double> addedBookmarks = curBookmarks.Except(prevBookmarks);
@@ -324,13 +324,13 @@ namespace MapsetSnapshotter
                             details.Add("Removed " + String.Join(", ", removedBookmarks.Select(aMark => Timestamp.Get(aMark))));
 
                         yield return new DiffInstance(
-                            aTranslateFunc(setting.mKey) + " were changed.", aSectionName,
+                            aTranslateFunc(setting.key) + " were changed.", aSectionName,
                             DiffType.Changed, details, addition.snapshotCreationDate);
                     }
-                    else if (removedSetting.mKey == "Tags")
+                    else if (removedSetting.key == "Tags")
                     {
-                        IEnumerable<string> prevTags = removedSetting.mValue.Split(' ').Select(aValue => aValue);
-                        IEnumerable<string> curTags = setting.mValue.Split(' ').Select(aValue => aValue);
+                        IEnumerable<string> prevTags = removedSetting.value.Split(' ').Select(aValue => aValue);
+                        IEnumerable<string> curTags = setting.value.Split(' ').Select(aValue => aValue);
 
                         IEnumerable<string> removedTags = prevTags.Except(curTags);
                         IEnumerable<string> addedTags = curTags.Except(prevTags);
@@ -342,7 +342,7 @@ namespace MapsetSnapshotter
                             details.Add("Removed " + String.Join(", ", removedTags.Select(aMark => Timestamp.Get(aMark))));
 
                         yield return new DiffInstance(
-                            aTranslateFunc(setting.mKey) + " were changed.", aSectionName,
+                            aTranslateFunc(setting.key) + " were changed.", aSectionName,
                             DiffType.Changed, details, addition.snapshotCreationDate);
                     }
                     else
