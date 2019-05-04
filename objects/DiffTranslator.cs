@@ -4,15 +4,10 @@ using System.Text;
 
 namespace MapsetSnapshotter
 {
-    public class DiffTranslator
+    public abstract class DiffTranslator
     {
-        public Type mClass;
-        public string mSection;
+        public abstract string Section { get; }
 
-        public DiffTranslator(Type aClass, string aSection)
-        {
-            mClass = aClass;
-            mSection = aSection;
-        }
+        public abstract IEnumerable<DiffInstance> Difference(IEnumerable<DiffInstance> aDiffs);
     }
 }
