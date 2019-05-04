@@ -9,7 +9,7 @@ using static MapsetSnapshotter.Snapshotter;
 
 namespace MapsetSnapshotter.translators
 {
-    public class EventTranslator : DiffTranslator
+    public class EventsTranslator : DiffTranslator
     {
         public override string Section { get => "Events"; }
 
