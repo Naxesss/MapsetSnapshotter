@@ -9,7 +9,7 @@ namespace MapsetSnapshotter.translators
     {
         public override string Section { get => "General"; }
 
-        public override IEnumerable<DiffInstance> Difference(IEnumerable<DiffInstance> aDiffs)
+        public override IEnumerable<DiffInstance> Translate(IEnumerable<DiffInstance> aDiffs)
         {
             foreach (DiffInstance aDiff in Snapshotter.TranslateSettings(Section, aDiffs, TranslateKey))
                 yield return aDiff;

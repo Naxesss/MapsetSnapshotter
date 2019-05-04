@@ -8,6 +8,6 @@ namespace MapsetSnapshotter.objects
     {
         public abstract string Section { get; }
 
-        public abstract IEnumerable<DiffInstance> Difference(IEnumerable<DiffInstance> aDiffs);
+        public abstract IEnumerable<DiffInstance> Translate(IEnumerable<DiffInstance> aDiffs);
     }
 }
