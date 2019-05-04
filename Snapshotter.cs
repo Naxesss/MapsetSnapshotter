@@ -195,8 +195,26 @@ namespace MapsetSnapshotter
             int offset = 0;
             for (int i = 0; i < maxLength; ++i)
             {
-                if (i >= minLength || i + offset >= currentLines.Length)
+                if (i >= maxLength)
                     break;
+                else if (i >= minLength || i + offset >= currentLines.Length)
+                {
+                    if (currentLines.Length - snapshotLines.Length - offset > 0)
+                    {
+                        // A line was added at the end of the file.
+                        yield return new DiffInstance(
+                            currentLines[i], prevSection.Substring(1, prevSection.Length - 2),
+                            DiffType.Added, new List<string>(), aSnapshot.creationTime);
+                    }
+
+                    if (snapshotLines.Length - currentLines.Length - offset > 0)
+                    {
+                        // A line was removed from the end of the file.
+                        yield return new DiffInstance(
+                            snapshotLines[i], prevSection.Substring(1, prevSection.Length - 2),
+                            DiffType.Removed, new List<string>(), aSnapshot.creationTime);
+                    }
+                }
                 else
                 {
                     if (currentLines[i + offset].StartsWith("[") && currentLines[i + offset].EndsWith("]"))
