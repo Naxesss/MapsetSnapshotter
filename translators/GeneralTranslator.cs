@@ -8,11 +8,11 @@ namespace MapsetSnapshotter.translators
     {
         public class TranslatorGeneral : DiffTranslator
         {
-            public static string mSectionName = "General";
+            public override string Section { get => "General"; }
 
             public static IEnumerable<DiffInstance> Execute(IEnumerable<DiffInstance> aDiffs)
             {
-                foreach (DiffInstance aDiff in Snapshotter.TranslateSettings(mSectionName, aDiffs, TranslateKey))
+                foreach (DiffInstance aDiff in Snapshotter.TranslateSettings(Section, aDiffs, TranslateKey))
                     yield return aDiff;
             }
 

@@ -1,4 +1,5 @@
 ﻿using MapsetParser.objects;
+using MapsetParser.statics;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -227,66 +228,30 @@ namespace MapsetSnapshotter
             }
         }
 
-        private static List<DiffTranslator> mTranslators = new List<DiffTranslator>();
+        private static IEnumerable<DiffTranslator> mTranslators = null;
         private static void InitTranslators()
         {
-            if (mTranslators.Count == 0)
-            {
-                TranslatorRegistry.GetTranslators();
-            }
+            if (mTranslators != null)
+                return;
+
+            mTranslators = TranslatorRegistry.GetTranslators();
         }
 
         public static IEnumerable<DiffInstance> TranslateComparison(IEnumerable<DiffInstance> aDiffs)
         {
             InitTranslators();
-            List<DiffInstance> myDifferences = new List<DiffInstance>();
-
             foreach (string mySection in aDiffs.Select(aDiff => aDiff.mSection).Distinct())
             {
                 IEnumerable<DiffInstance> myDiffs = aDiffs.Where(aDiff => aDiff.mSection == mySection && aDiff.mDifference.Length > 0);
 
-                DiffTranslator myTranslator = mTranslators.FirstOrDefault(aTranslator => aTranslator.mSection == mySection);
+                DiffTranslator myTranslator = mTranslators.FirstOrDefault(aTranslator => aTranslator.Section == mySection);
                 if (myTranslator != null)
-                {
-                    object myInstance = Activator.CreateInstance(myTranslator.mClass);
-                    MethodInfo myMethod = myTranslator.mClass.GetMethod("Execute");
-                    Type myParameterType = myMethod.GetParameters().FirstOrDefault().ParameterType;
-
-                    IEnumerable<DiffInstance> myTranslatedDiffs;
-
-                    // this determines whether it's a general (i.e. relies on that other beatmaps are processed) or an isolated check
-                    if (myParameterType == typeof(IEnumerable<DiffInstance>))
-                        myTranslatedDiffs = (IEnumerable<DiffInstance>)myMethod.Invoke(myInstance, new object[] { myDiffs });
-                    else
-                        throw new Exception("Encountered unexpected translator parameters.");
-
-                    foreach (DiffInstance myDiff in myTranslatedDiffs)
+                    foreach (DiffInstance myDiff in myTranslator.Difference(myDiffs))
                         yield return myDiff;
-                }
                 else
-                {
                     foreach (DiffInstance myDiff in myDiffs)
                         yield return myDiff;
-                }
             }
-        }
-
-        private static DiffTranslator GetTranslator(Type aType)
-        {
-            Attribute myAttrTranslator = aType.GetTypeInfo().GetCustomAttribute(typeof(TranslatorAttribute));
-
-            if (myAttrTranslator != null)
-            {
-                FieldInfo myTemplateField = aType.GetField("mTemplateDictionary");
-                Dictionary<string, IssueTemplate> myTemplates = (Dictionary<string, IssueTemplate>)myTemplateField?.GetValue(null);
-
-                TranslatorAttribute myTranslatorAttr = myAttrTranslator as TranslatorAttribute;
-
-                return new DiffTranslator(aType,
-                                         myTranslatorAttr.mSection);
-            }
-
-            return null;
         }
 
         public struct Setting
@@ -312,7 +277,7 @@ namespace MapsetSnapshotter
         private static DiffInstance GetTranslatedSettingDiff(
             string aSectionName, Func<string, string> aTranslateFunc,
             Setting aSetting, DiffInstance aDiff,
-            Setting? anOtherSetting = null, DiffInstance? anOtherDiff = null)
+            Setting? anOtherSetting = null, DiffInstance anOtherDiff = null)
         {
             string myKey = aTranslateFunc != null ? aTranslateFunc(aSetting.mKey) : aSetting.mKey;
             if (anOtherSetting == null || anOtherDiff == null)
@@ -359,9 +324,9 @@ namespace MapsetSnapshotter
 
                         List<string> myDetails = new List<string>();
                         if (myAddedBookmarks.Count() > 0)
-                            myDetails.Add("Added " + String.Join(", ", myAddedBookmarks.Select(aMark => Checker.GetStamp(aMark))));
+                            myDetails.Add("Added " + String.Join(", ", myAddedBookmarks.Select(aMark => Timestamp.Get(aMark))));
                         if (myRemovedBookmarks.Count() > 0)
-                            myDetails.Add("Removed " + String.Join(", ", myRemovedBookmarks.Select(aMark => Checker.GetStamp(aMark))));
+                            myDetails.Add("Removed " + String.Join(", ", myRemovedBookmarks.Select(aMark => Timestamp.Get(aMark))));
 
                         yield return new DiffInstance(
                             aTranslateFunc(mySetting.mKey) + " were changed.", aSectionName,
@@ -377,9 +342,9 @@ namespace MapsetSnapshotter
 
                         List<string> myDetails = new List<string>();
                         if (myAddedTags.Count() > 0)
-                            myDetails.Add("Added " + String.Join(", ", myAddedTags.Select(aMark => Checker.GetStamp(aMark))));
+                            myDetails.Add("Added " + String.Join(", ", myAddedTags.Select(aMark => Timestamp.Get(aMark))));
                         if (myRemovedTags.Count() > 0)
-                            myDetails.Add("Removed " + String.Join(", ", myRemovedTags.Select(aMark => Checker.GetStamp(aMark))));
+                            myDetails.Add("Removed " + String.Join(", ", myRemovedTags.Select(aMark => Timestamp.Get(aMark))));
 
                         yield return new DiffInstance(
                             aTranslateFunc(mySetting.mKey) + " were changed.", aSectionName,
@@ -389,7 +354,7 @@ namespace MapsetSnapshotter
                         yield return Snapshotter.GetTranslatedSettingDiff(
                             aSectionName, aTranslateFunc,
                             mySetting, myAddition,
-                            myRemovedSetting, myRemoval.GetValueOrDefault());
+                            myRemovedSetting, myRemoval);
                 }
                 else
                 {
