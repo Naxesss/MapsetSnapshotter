@@ -10,7 +10,6 @@ namespace MapsetSnapshotter.objects
         public string difference;
         public string section;
         public DiffType diffType;
-        public string customTitle;
 
         public List<string> details;
 
@@ -21,7 +20,6 @@ namespace MapsetSnapshotter.objects
             difference = aDifference;
             section = aSection;
             diffType = aDiffType;
-            customTitle = null;
 
             details = aDetails;
 
