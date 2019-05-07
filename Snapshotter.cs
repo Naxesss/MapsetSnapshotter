@@ -203,11 +203,11 @@ namespace MapsetSnapshotter
                     {
                         // A line was added at the end of the file.
                         yield return new DiffInstance(
-                            currentLines[i], prevSection.Substring(1, prevSection.Length - 2),
+                            currentLines[i + offset], prevSection.Substring(1, prevSection.Length - 2),
                             DiffType.Added, new List<string>(), aSnapshot.creationTime);
                     }
 
-                    if (snapshotLines.Length - currentLines.Length - offset > 0)
+                    if (snapshotLines.Length - currentLines.Length > 0)
                     {
                         // A line was removed from the end of the file.
                         yield return new DiffInstance(
