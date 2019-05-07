@@ -59,21 +59,21 @@ namespace MapsetSnapshotter.translators
                             List<string> changes = new List<string>();
 
                             if (addedLine.kiai != removedLine.kiai)
-                                changes.Add("Kiai changed from " + (addedLine.kiai ? "enabled" : "disabled") +
-                                    " to " + (removedLine.kiai ? "enabled" : "disabled") + ".");
+                                changes.Add("Kiai changed from " + (removedLine.kiai ? "enabled" : "disabled") +
+                                    " to " + (addedLine.kiai ? "enabled" : "disabled") + ".");
 
                             if (addedLine.meter != removedLine.meter)
-                                changes.Add("Timing signature changed from 4/" + addedLine.meter +
-                                    " to 4/" + removedLine.meter + ".");
+                                changes.Add("Timing signature changed from 4/" + removedLine.meter +
+                                    " to 4/" + addedLine.meter + ".");
 
                             if (addedLine.sampleset != removedLine.sampleset)
                                 changes.Add("Sampleset changed from " +
-                                    addedLine.sampleset.ToString().ToLower() + " to " +
-                                    removedLine.sampleset.ToString().ToLower() + ".");
+                                    removedLine.sampleset.ToString().ToLower() + " to " +
+                                    addedLine.sampleset.ToString().ToLower() + ".");
 
                             if (addedLine.volume != removedLine.volume)
-                                changes.Add("Volume changed from " + addedLine.volume +
-                                   " to " + removedLine.volume + ".");
+                                changes.Add("Volume changed from " + removedLine.volume +
+                                   " to " + addedLine.volume + ".");
 
                             if (type == "Uninherited line")
                             {
@@ -81,12 +81,12 @@ namespace MapsetSnapshotter.translators
                                 UninheritedLine removedUninherited = new UninheritedLine(removedLine.code);
 
                                 if (addedUninherited.bpm != removedUninherited.bpm)
-                                    changes.Add("BPM changed from " + addedUninherited.bpm +
-                                        " to " + removedUninherited.bpm + ".");
+                                    changes.Add("BPM changed from " + removedUninherited.bpm +
+                                        " to " + addedUninherited.bpm + ".");
                             }
                             else if (addedLine.svMult != removedLine.svMult)
-                                changes.Add("Slider velocity multiplier changed from " + addedLine.svMult +
-                                    " to " + removedLine.svMult + ".");
+                                changes.Add("Slider velocity multiplier changed from " + removedLine.svMult +
+                                    " to " + addedLine.svMult + ".");
 
                             if (changes.Count == 1)
                                 yield return new DiffInstance(stamp + changes[0],
