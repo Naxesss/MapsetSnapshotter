@@ -181,8 +181,6 @@ namespace MapsetSnapshotter
 
         public static IEnumerable<DiffInstance> Compare(Snapshot aSnapshot, string aCurrentCode)
         {
-            List<DiffInstance> differences = new List<DiffInstance>();
-
             string[] snapshotLines = aSnapshot.code.Replace("\r", "").Split('\n');
             string[] currentLines = aCurrentCode.Replace("\r", "").Split('\n');
 
@@ -255,12 +253,22 @@ namespace MapsetSnapshotter
         {
             foreach (string section in aDiffs.Select(aDiff => aDiff.section).Distinct())
             {
-                IEnumerable<DiffInstance> diffs = aDiffs.Where(aDiff => aDiff.section == section && aDiff.difference.Length > 0);
+
+                IEnumerable<DiffInstance> diffs =
+                    aDiffs.Where(aDiff =>
+                        aDiff.section == section &&
+                        aDiff.difference.Length > 0);
 
                 DiffTranslator translator = TranslatorRegistry.GetTranslators().FirstOrDefault(aTranslator => aTranslator.Section == section);
                 if (translator != null)
+                {
                     foreach (DiffInstance diff in translator.Translate(diffs))
+                    {
+                        // Since all translators should be able to translate sections, we do that here.
+                        diff.section = translator.TranslatedSection;
                         yield return diff;
+                    }
+                }
                 else
                     foreach (DiffInstance diff in diffs)
                         yield return diff;
