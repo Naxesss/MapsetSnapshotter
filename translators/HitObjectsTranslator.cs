@@ -13,6 +13,7 @@ namespace MapsetSnapshotter.translators
     public class HitObjectsTranslator : DiffTranslator
     {
         public override string Section { get => "HitObjects"; }
+        public override string TranslatedSection { get => "Hit Objects"; }
 
         public override IEnumerable<DiffInstance> Translate(IEnumerable<DiffInstance> aDiffs)
         {

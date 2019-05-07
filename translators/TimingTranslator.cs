@@ -12,7 +12,8 @@ namespace MapsetSnapshotter.translators
 {
     public class TimingTranslator : DiffTranslator
     {
-        public override string Section { get => "Timing"; }
+        public override string Section { get => "TimingPoints"; }
+        public override string TranslatedSection { get => "Timing"; }
 
         public override IEnumerable<DiffInstance> Translate(IEnumerable<DiffInstance> aDiffs)
         {
