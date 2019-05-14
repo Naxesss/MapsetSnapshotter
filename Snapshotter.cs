@@ -354,10 +354,10 @@ namespace MapsetSnapshotter
                         IEnumerable<string> addedTags = curTags.Except(prevTags);
 
                         List<string> details = new List<string>();
-                        if (removedTags.Any())
-                            details.Add("Added " + String.Join(", ", addedTags.Select(aMark => Timestamp.Get(aMark))));
                         if (addedTags.Any())
-                            details.Add("Removed " + String.Join(", ", removedTags.Select(aMark => Timestamp.Get(aMark))));
+                            details.Add("Added " + String.Join(", ", addedTags));
+                        if (removedTags.Any())
+                            details.Add("Removed " + String.Join(", ", removedTags));
 
                         yield return new DiffInstance(
                             aTranslateFunc(setting.key) + " were changed.", aSectionName,
