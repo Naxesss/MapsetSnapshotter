@@ -80,7 +80,7 @@ namespace MapsetSnapshotter
                     if (!Directory.Exists(saveDirectory))
                         Directory.CreateDirectory(saveDirectory);
 
-                    File.WriteAllText(saveDirectory + "/" + saveName, beatmap.code);
+                    File.WriteAllText(saveDirectory + Path.DirectorySeparatorChar + saveName, beatmap.code);
                 }
             }
 
