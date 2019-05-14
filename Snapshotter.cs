@@ -183,8 +183,7 @@ namespace MapsetSnapshotter
             int maxLength = Math.Max(snapshotLines.Length, currentLines.Length);
             int minLength = Math.Min(snapshotLines.Length, currentLines.Length);
 
-            string prevSection = null;
-            string curSection = null;
+            string prevSection = "No Section";
 
             int offset = 0;
             for (int i = 0; i < maxLength; ++i)
@@ -211,9 +210,6 @@ namespace MapsetSnapshotter
                 }
                 else
                 {
-                    if (currentLines[i + offset].StartsWith("[") && currentLines[i + offset].EndsWith("]"))
-                        curSection = currentLines[i + offset];
-
                     if (snapshotLines[i].StartsWith("[") && snapshotLines[i].EndsWith("]"))
                         prevSection = snapshotLines[i];
 
