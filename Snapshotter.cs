@@ -23,11 +23,11 @@ namespace MapsetSnapshotter
 
         public struct Snapshot
         {
-            public DateTime creationTime;
-            public string beatmapSetId;
-            public string beatmapId;
-            public string saveName;
-            public string code;
+            public readonly DateTime creationTime;
+            public readonly string beatmapSetId;
+            public readonly string beatmapId;
+            public readonly string saveName;
+            public readonly string code;
 
             public Snapshot(DateTime aCreationTime, string aBeatmapSetId, string aBeatmapId, string aSaveName, string aCode)
             {
@@ -277,8 +277,8 @@ namespace MapsetSnapshotter
 
         public struct Setting
         {
-            public string key;
-            public string value;
+            public readonly string key;
+            public readonly string value;
 
             public Setting(string aCode)
             {
