@@ -50,18 +50,16 @@ namespace MapsetSnapshotter
 
                 foreach (Beatmap otherBeatmap in aBeatmapSet.beatmaps)
                 {
-                    if (otherBeatmap.metadataSettings.beatmapId == beatmap.metadataSettings.beatmapId)
+                    if (otherBeatmap.metadataSettings.beatmapId == beatmap.metadataSettings.beatmapId &&
+                        beatmap.mapPath != null && otherBeatmap.mapPath != null)
                     {
-                        if (beatmap.mapPath != null && otherBeatmap.mapPath != null)
-                        {
-                            DateTime date = File.GetCreationTimeUtc(beatmap.mapPath);
-                            DateTime otherDate = File.GetCreationTimeUtc(otherBeatmap.mapPath);
+                        DateTime date = File.GetCreationTimeUtc(beatmap.mapPath);
+                        DateTime otherDate = File.GetCreationTimeUtc(otherBeatmap.mapPath);
                             
-                            // We only save the beatmap id, so if we have two of the same beatmap
-                            // in the folder, we should only save the newest one.
-                            if (date < otherDate)
-                                return;
-                        }
+                        // We only save the beatmap id, so if we have two of the same beatmap
+                        // in the folder, we should only save the newest one.
+                        if (date < otherDate)
+                            return;
                     }
                 }
                 
@@ -70,9 +68,8 @@ namespace MapsetSnapshotter
 
                 // If our snapshot is up to date, saving is redundant.
                 foreach (Snapshot snapshot in snapshots)
-                    if (snapshot.creationTime == snapshots.Max(aSnapshot => aSnapshot.creationTime))
-                        if (snapshot.code == beatmap.code)
-                            shouldSave = false;
+                    if (snapshot.creationTime == snapshots.Max(aSnapshot => aSnapshot.creationTime) && snapshot.code == beatmap.code)
+                        shouldSave = false;
 
                 if (shouldSave)
                 {
@@ -125,9 +122,8 @@ namespace MapsetSnapshotter
                 bool shouldSave = true;
 
                 foreach (Snapshot snapshot in snapshots)
-                    if (snapshot.creationTime == snapshots.Max(aSnapshot => aSnapshot.creationTime))
-                        if (snapshot.code == fileSnapshotString)
-                            shouldSave = false;
+                    if (snapshot.creationTime == snapshots.Max(aSnapshot => aSnapshot.creationTime) && snapshot.code == fileSnapshotString)
+                        shouldSave = false;
 
                 if (shouldSave)
                 {
