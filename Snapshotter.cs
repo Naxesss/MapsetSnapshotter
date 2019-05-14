@@ -336,9 +336,9 @@ namespace MapsetSnapshotter
                         IEnumerable<double> addedBookmarks = curBookmarks.Except(prevBookmarks);
 
                         List<string> details = new List<string>();
-                        if (addedBookmarks.Count() > 0)
+                        if (addedBookmarks.Any())
                             details.Add("Added " + String.Join(", ", addedBookmarks.Select(aMark => Timestamp.Get(aMark))));
-                        if (removedBookmarks.Count() > 0)
+                        if (removedBookmarks.Any())
                             details.Add("Removed " + String.Join(", ", removedBookmarks.Select(aMark => Timestamp.Get(aMark))));
 
                         yield return new DiffInstance(
@@ -354,9 +354,9 @@ namespace MapsetSnapshotter
                         IEnumerable<string> addedTags = curTags.Except(prevTags);
 
                         List<string> details = new List<string>();
-                        if (addedTags.Count() > 0)
+                        if (removedTags.Any())
                             details.Add("Added " + String.Join(", ", addedTags.Select(aMark => Timestamp.Get(aMark))));
-                        if (removedTags.Count() > 0)
+                        if (addedTags.Any())
                             details.Add("Removed " + String.Join(", ", removedTags.Select(aMark => Timestamp.Get(aMark))));
 
                         yield return new DiffInstance(
