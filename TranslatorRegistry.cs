@@ -6,7 +6,7 @@ using System.Text;
 
 namespace MapsetSnapshotter
 {
-    public class TranslatorRegistry
+    public static class TranslatorRegistry
     {
         private static List<DiffTranslator> translators = new List<DiffTranslator>();
         private static bool initialized;
