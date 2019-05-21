@@ -7,20 +7,18 @@ namespace MapsetSnapshotter.objects
 {
     public class DiffInstance
     {
-        public string difference;
-        public string section;
-        public DiffType diffType;
+        public string                Section { get; set; }
+        public readonly string       difference;
+        public readonly DiffType     diffType;
+        public readonly List<string> details;
 
-        public List<string> details;
-
-        public DateTime snapshotCreationDate;
+        public readonly DateTime snapshotCreationDate;
 
         public DiffInstance(string aDifference, string aSection, DiffType aDiffType, List<string> aDetails, DateTime aSnapshotCreationDate)
         {
+            Section = aSection;
             difference = aDifference;
-            section = aSection;
             diffType = aDiffType;
-
             details = aDetails;
 
             snapshotCreationDate = aSnapshotCreationDate;
