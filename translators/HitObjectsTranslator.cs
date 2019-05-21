@@ -184,36 +184,36 @@ namespace MapsetSnapshotter.translators
 
                                 if (addedSlider.edgeAmount == removedSlider.edgeAmount)
                                 {
-                                    for (int i = 0; i < addedSlider.repeatSamplesets.Count; ++i)
+                                    for (int i = 0; i < addedSlider.reverseSamplesets.Count; ++i)
                                     {
-                                        if (addedSlider.repeatSamplesets[i] != removedSlider.repeatSamplesets[i])
+                                        if (addedSlider.reverseSamplesets[i] != removedSlider.reverseSamplesets[i])
                                             changes.Add("Reverse #" + (i + 1) + " sampleset changed from " +
-                                                removedSlider.repeatSamplesets[i].ToString().ToLower() + " to " +
-                                                addedSlider.repeatSamplesets[i].ToString().ToLower() + ".");
+                                                removedSlider.reverseSamplesets[i].ToString().ToLower() + " to " +
+                                                addedSlider.reverseSamplesets[i].ToString().ToLower() + ".");
                                     }
 
-                                    for (int i = 0; i < addedSlider.repeatAdditions.Count; ++i)
+                                    for (int i = 0; i < addedSlider.reverseAdditions.Count; ++i)
                                     {
-                                        if (addedSlider.repeatAdditions[i] != removedSlider.repeatAdditions[i])
+                                        if (addedSlider.reverseAdditions[i] != removedSlider.reverseAdditions[i])
                                             changes.Add("Reverse #" + (i + 1) + " addition changed from " +
-                                                removedSlider.repeatAdditions[i].ToString().ToLower() + " to " +
-                                                addedSlider.repeatAdditions[i].ToString().ToLower() + ".");
+                                                removedSlider.reverseAdditions[i].ToString().ToLower() + " to " +
+                                                addedSlider.reverseAdditions[i].ToString().ToLower() + ".");
                                     }
 
-                                    for (int i = 0; i < addedSlider.repeatAdditions.Count; ++i)
+                                    for (int i = 0; i < addedSlider.reverseAdditions.Count; ++i)
                                     {
-                                        if (addedSlider.repeatHitSounds[i] != removedSlider.repeatHitSounds[i])
+                                        if (addedSlider.reverseHitSounds[i] != removedSlider.reverseHitSounds[i])
                                         {
                                             foreach (HitObject.HitSound hitSound in Enum.GetValues(typeof(HitObject.HitSound)))
                                             {
-                                                if (addedSlider.repeatHitSounds[i].HasFlag(hitSound) &&
-                                                    !removedSlider.repeatHitSounds[i].HasFlag(hitSound))
+                                                if (addedSlider.reverseHitSounds[i].HasFlag(hitSound) &&
+                                                    !removedSlider.reverseHitSounds[i].HasFlag(hitSound))
                                                     changes.Add("Added " +
                                                         Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() +
                                                         " to reverse #" + (i + 1) + ".");
 
-                                                if (!addedSlider.repeatHitSounds[i].HasFlag(hitSound) &&
-                                                    removedSlider.repeatHitSounds[i].HasFlag(hitSound))
+                                                if (!addedSlider.reverseHitSounds[i].HasFlag(hitSound) &&
+                                                    removedSlider.reverseHitSounds[i].HasFlag(hitSound))
                                                     changes.Add("Removed " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() +
                                                         " from reverse #" + (i + 1) + ".");
                                             }
