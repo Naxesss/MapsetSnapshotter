@@ -25,7 +25,10 @@ namespace MapsetSnapshotter.translators
                 HitObject hitObject = null;
                 try
                 { hitObject = new HitObject(diff.difference, null); }
-                catch { }
+                catch
+                {
+                    // Cannot yield in a catch clause, so checks for null in the following statement instead.
+                }
 
                 if (hitObject != null)
                 {

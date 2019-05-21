@@ -23,8 +23,6 @@ namespace MapsetSnapshotter.translators
 
                 if (removal != null && removal.difference != null)
                 {
-                    Setting removedSetting = new Setting(removal.difference);
-
                     removed.Remove(removal);
 
                     yield return new DiffInstance("\"" + setting.key + "\" was modified.",
