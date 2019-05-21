@@ -243,12 +243,12 @@ namespace MapsetSnapshotter
         
         public static IEnumerable<DiffInstance> TranslateComparison(IEnumerable<DiffInstance> aDiffs)
         {
-            foreach (string section in aDiffs.Select(aDiff => aDiff.section).Distinct())
+            foreach (string section in aDiffs.Select(aDiff => aDiff.Section).Distinct())
             {
 
                 IEnumerable<DiffInstance> diffs =
                     aDiffs.Where(aDiff =>
-                        aDiff.section == section &&
+                        aDiff.Section == section &&
                         aDiff.difference.Length > 0);
 
                 DiffTranslator translator = TranslatorRegistry.GetTranslators().FirstOrDefault(aTranslator => aTranslator.Section == section);
@@ -257,7 +257,7 @@ namespace MapsetSnapshotter
                     foreach (DiffInstance diff in translator.Translate(diffs))
                     {
                         // Since all translators should be able to translate sections, we do that here.
-                        diff.section = translator.TranslatedSection;
+                        diff.Section = translator.TranslatedSection;
                         yield return diff;
                     }
                 }
