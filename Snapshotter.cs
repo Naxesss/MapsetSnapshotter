@@ -13,6 +13,7 @@ namespace MapsetSnapshotter
     public class Snapshotter
     {
         private const string fileNameFormat = "yyyy-MM-dd HH-mm-ss";
+        public static string RelativeDirectory { get; set; } = "";
 
         public enum DiffType
         {
@@ -74,7 +75,7 @@ namespace MapsetSnapshotter
                 if (shouldSave)
                 {
                     // ./snapshots/571202/258378/2019-01-26 22-12-49
-                    string saveDirectory = "snapshots/" + beatmapSetId + "/" + beatmapId;
+                    string saveDirectory = Path.Combine(RelativeDirectory, "snapshots", beatmapSetId, beatmapId);
                     string saveName = creationDate.ToString(fileNameFormat) + ".osu";
 
                     if (!Directory.Exists(saveDirectory))
@@ -127,8 +128,8 @@ namespace MapsetSnapshotter
 
                 if (shouldSave)
                 {
-                    string filesSnapshotDirectory = "snapshots/" + beatmapSetId + "/files";
-                    string filesSnapshotName = filesSnapshotDirectory + "/" + aCreationTime.ToString(fileNameFormat) + ".txt";
+                    string filesSnapshotDirectory = Path.Combine(RelativeDirectory, "snapshots", beatmapSetId, "files");
+                    string filesSnapshotName = filesSnapshotDirectory + Path.DirectorySeparatorChar + aCreationTime.ToString(fileNameFormat) + ".txt";
 
                     if (!Directory.Exists(filesSnapshotDirectory))
                         Directory.CreateDirectory(filesSnapshotDirectory);
@@ -145,7 +146,7 @@ namespace MapsetSnapshotter
 
         public static IEnumerable<Snapshot> GetSnapshots(string aBeatmapSetId, string aBeatmapId)
         {
-            string saveDirectory = "snapshots/" + aBeatmapSetId + "/" + aBeatmapId;
+            string saveDirectory = Path.Combine(RelativeDirectory, "snapshots", aBeatmapSetId, aBeatmapId);
             if (Directory.Exists(saveDirectory))
             {
                 string[] filePaths = Directory.GetFiles(saveDirectory);
