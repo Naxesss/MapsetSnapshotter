@@ -24,7 +24,7 @@ namespace MapsetSnapshotter.translators
             {
                 HitObject hitObject = null;
                 try
-                { hitObject = new HitObject(diff.difference, null); }
+                { hitObject = new HitObject(diff.difference.Split(','), null); }
                 catch
                 {
                     // Cannot yield in a catch clause, so checks for null in the following statement instead.
@@ -128,8 +128,8 @@ namespace MapsetSnapshotter.translators
 
                             if (type == "Slider")
                             {
-                                Slider addedSlider = new Slider(addedObject.code, null);
-                                Slider removedSlider = new Slider(removedObject.code, null);
+                                Slider addedSlider = new Slider(addedObject.code.Split(','), null);
+                                Slider removedSlider = new Slider(removedObject.code.Split(','), null);
 
                                 if (addedSlider.curveType != removedSlider.curveType)
                                     changes.Add("Curve type changed from " + removedSlider.curveType + " to " +
@@ -250,8 +250,8 @@ namespace MapsetSnapshotter.translators
 
                             if (type == "Spinner")
                             {
-                                Spinner addedSpinner = new Spinner(addedObject.code, null);
-                                Spinner removedSpinner = new Spinner(removedObject.code, null);
+                                Spinner addedSpinner = new Spinner(addedObject.code.Split(','), null);
+                                Spinner removedSpinner = new Spinner(removedObject.code.Split(','), null);
 
                                 if (addedSpinner.endTime != removedSpinner.endTime)
                                     changes.Add("End time changed from " + removedSpinner.endTime + " to " +
@@ -260,8 +260,8 @@ namespace MapsetSnapshotter.translators
 
                             if (type == "Hold note")
                             {
-                                HoldNote addedNote = new HoldNote(addedObject.code, null);
-                                HoldNote removedNote = new HoldNote(removedObject.code, null);
+                                HoldNote addedNote = new HoldNote(addedObject.code.Split(','), null);
+                                HoldNote removedNote = new HoldNote(removedObject.code.Split(','), null);
 
                                 if (addedNote.endTime != removedNote.endTime)
                                     changes.Add("End time changed from " + removedNote.endTime + " to " +

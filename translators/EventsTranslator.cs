@@ -44,11 +44,11 @@ namespace MapsetSnapshotter.translators
         {
             List<Tuple<Break, DiffInstance>> addedBreaks =
                 mDictionary.Where(aPair => aPair.Key == 2 && aPair.Value.diffType == DiffType.Added)
-                    .Select(aPair => new Tuple<Break, DiffInstance>(new Break(aPair.Value.difference), aPair.Value)).ToList();
+                    .Select(aPair => new Tuple<Break, DiffInstance>(new Break(aPair.Value.difference.Split(',')), aPair.Value)).ToList();
 
             List<Tuple<Break, DiffInstance>> removedBreaks =
                 mDictionary.Where(aPair => aPair.Key == 2 && aPair.Value.diffType == DiffType.Removed)
-                    .Select(aPair => new Tuple<Break, DiffInstance>(new Break(aPair.Value.difference), aPair.Value)).ToList();
+                    .Select(aPair => new Tuple<Break, DiffInstance>(new Break(aPair.Value.difference.Split(',')), aPair.Value)).ToList();
 
             mDictionary.RemoveAll(aPair => aPair.Key == 2);
 
