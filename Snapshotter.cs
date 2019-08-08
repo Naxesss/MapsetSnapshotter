@@ -191,7 +191,7 @@ namespace MapsetSnapshotter
             {
                 if (i >= maxLength)
                     break;
-                else if (i >= minLength || i + offset >= currentLines.Length)
+                else if (i >= minLength || i + offset > currentLines.Length)
                 {
                     if (currentLines.Length - snapshotLines.Length - offset > 0)
                     {
