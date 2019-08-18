@@ -23,10 +23,12 @@ namespace MapsetSnapshotter.translators
             6 : Animation
         */
 
-        private static List<KeyValuePair<int, DiffInstance>> mDictionary = new List<KeyValuePair<int, DiffInstance>>();
+        private static List<KeyValuePair<int, DiffInstance>> mDictionary;
 
         public override IEnumerable<DiffInstance> Translate(IEnumerable<DiffInstance> aDiffs)
         {
+            mDictionary = new List<KeyValuePair<int, DiffInstance>>();
+
             // Assumes all events begin with an id of their type, see block comment above.
             foreach (DiffInstance diff in aDiffs)
                 mDictionary.Add(new KeyValuePair<int, DiffInstance>(diff.difference[0] - 48, diff));
