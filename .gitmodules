@@ -1,4 +1,0 @@
-[submodule "MapsetParser"]
-	path = MapsetParser
-	url = https://github.com/Naxesss/MapsetParser
-	branch = master
