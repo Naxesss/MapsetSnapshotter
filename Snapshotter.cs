@@ -94,26 +94,23 @@ namespace MapsetSnapshotter
 
             StringBuilder fileSnapshot = new StringBuilder("[Files]\r\n");
 
+            // We track even .osu and .osb files as we have no other way of determining if they've been renamed/added/removed.
             foreach (string filePath in aBeatmapSet.songFilePaths)
             {
                 if (beatmapSetId == null)
                     break;
 
-                // We already track .osu and .osb files so we ignore these.
-                if (!filePath.EndsWith(".osu") && !filePath.EndsWith(".osb"))
-                {
-                    string fileName = filePath.Split('/', '\\').Last();
+                string fileName = filePath.Split('/', '\\').Last();
 
-                    // Storing the complete file would quickly take up a lot of memory so we hash it instead.
-                    byte[] bytes = File.ReadAllBytes(filePath);
-                    byte[] hashBytes = SHA1.Create().ComputeHash(bytes);
+                // Storing the complete file would quickly take up a lot of memory so we hash it instead.
+                byte[] bytes = File.ReadAllBytes(filePath);
+                byte[] hashBytes = SHA1.Create().ComputeHash(bytes);
 
-                    StringBuilder hash = new StringBuilder();
-                    foreach (byte hashByte in hashBytes)
-                        hash.Append(hashByte.ToString("X2"));
+                StringBuilder hash = new StringBuilder();
+                foreach (byte hashByte in hashBytes)
+                    hash.Append(hashByte.ToString("X2"));
 
-                    fileSnapshot.Append(fileName + ": " + hash.ToString() + "\r\n");
-                }
+                fileSnapshot.Append(fileName + ": " + hash.ToString() + "\r\n");
             }
 
             string fileSnapshotString = fileSnapshot.ToString();
