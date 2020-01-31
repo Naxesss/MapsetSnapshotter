@@ -63,8 +63,8 @@ namespace MapsetSnapshotter.translators
                                     " to " + (addedLine.kiai ? "enabled" : "disabled") + ".");
 
                             if (addedLine.meter != removedLine.meter)
-                                changes.Add("Timing signature changed from 4/" + removedLine.meter +
-                                    " to 4/" + addedLine.meter + ".");
+                                changes.Add("Timing signature changed from " + removedLine.meter + "/4" +
+                                    " to " + addedLine.meter + "/4.");
 
                             if (addedLine.sampleset != removedLine.sampleset)
                                 changes.Add("Sampleset changed from " +
