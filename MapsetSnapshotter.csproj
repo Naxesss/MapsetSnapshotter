@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -11,7 +11,7 @@
 
   <ItemGroup>
     <Reference Include="MapsetParser">
-      <HintPath>..\MapsetParser\bin\Debug\netcoreapp2.0\MapsetParser.dll</HintPath>
+      <HintPath>..\MapsetParser\bin\Debug\netcoreapp3.1\MapsetParser.dll</HintPath>
     </Reference>
   </ItemGroup>
 
