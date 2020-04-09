@@ -346,8 +346,8 @@ namespace MapsetSnapshotter
                     }
                     else if (removedSetting.key == "Tags")
                     {
-                        IEnumerable<string> prevTags = removedSetting.value.Split(' ').Select(aValue => aValue);
-                        IEnumerable<string> curTags = setting.value.Split(' ').Select(aValue => aValue);
+                        IEnumerable<string> prevTags = removedSetting.value.Split(' ').Select(aValue => "\"" + aValue + "\"");
+                        IEnumerable<string> curTags = setting.value.Split(' ').Select(aValue => "\"" + aValue + "\"");
 
                         IEnumerable<string> removedTags = prevTags.Except(curTags);
                         IEnumerable<string> addedTags = curTags.Except(prevTags);
