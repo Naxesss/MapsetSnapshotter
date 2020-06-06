@@ -24,7 +24,7 @@ namespace MapsetSnapshotter.translators
             {
                 HitObject hitObject = null;
                 try
-                { hitObject = new HitObject(diff.difference.Split(','), null); }
+                { hitObject = new HitObject(diff.difference.Split(','), beatmap: null); }
                 catch
                 {
                     // Cannot yield in a catch clause, so checks for null in the following statement instead.
