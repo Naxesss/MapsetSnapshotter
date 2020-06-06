@@ -24,7 +24,7 @@ namespace MapsetSnapshotter.translators
             {
                 TimingLine timingLine = null;
                 try
-                { timingLine = new TimingLine(diff.difference.Split(',')); }
+                { timingLine = new TimingLine(diff.difference.Split(','), beatmap: null); }
                 catch { }
 
                 if (timingLine != null)
@@ -77,8 +77,8 @@ namespace MapsetSnapshotter.translators
 
                             if (type == "Uninherited line")
                             {
-                                UninheritedLine addedUninherited = new UninheritedLine(addedLine.code.Split(','));
-                                UninheritedLine removedUninherited = new UninheritedLine(removedLine.code.Split(','));
+                                UninheritedLine addedUninherited = new UninheritedLine(addedLine.code.Split(','), beatmap: null);
+                                UninheritedLine removedUninherited = new UninheritedLine(removedLine.code.Split(','), beatmap: null);
 
                                 if (addedUninherited.bpm != removedUninherited.bpm)
                                     changes.Add("BPM changed from " + removedUninherited.bpm +
