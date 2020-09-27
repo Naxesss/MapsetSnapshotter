@@ -295,15 +295,15 @@ namespace MapsetSnapshotter
             if (anOtherSetting == null || anOtherDiff == null)
             {
                 if (aDiff.diffType == DiffType.Added)
-                    return new DiffInstance(key + " was added and set to " + aSetting.value + ".",
+                    return new DiffInstance(key + " was added and set to \"" + aSetting.value + "\".",
                         aSectionName, DiffType.Added, new List<string>(), aDiff.snapshotCreationDate);
                 else
-                    return new DiffInstance(key + " was removed and is no longer set to " + aSetting.value + ".",
+                    return new DiffInstance(key + " was removed and is no longer set to \"" + aSetting.value + "\".",
                         aSectionName, DiffType.Removed, new List<string>(), aDiff.snapshotCreationDate);
             }
             else
             {
-                return new DiffInstance(key + " was changed from " + anOtherSetting.GetValueOrDefault().value + " to " + aSetting.value + ".",
+                return new DiffInstance(key + " was changed from \"" + anOtherSetting.GetValueOrDefault().value + "\" to \"" + aSetting.value + "\".",
                     aSectionName, DiffType.Changed, new List<string>(), aDiff.snapshotCreationDate);
             }
         }
