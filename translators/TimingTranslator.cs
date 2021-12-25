@@ -82,7 +82,7 @@ namespace MapsetSnapshotter.translators
                                     removedLine.customIndex.ToString().ToLower() + " to " +
                                     addedLine.customIndex.ToString().ToLower() + ".");
 
-                    if (addedLine.volume.AlmostEqual(removedLine.volume))
+                    if (!addedLine.volume.AlmostEqual(removedLine.volume))
                         changes.Add("Volume changed from " + removedLine.volume +
                                     " to " + addedLine.volume + ".");
 
@@ -91,11 +91,11 @@ namespace MapsetSnapshotter.translators
                         UninheritedLine addedUninherited = new UninheritedLine(addedLine.code.Split(','), beatmap: null);
                         UninheritedLine removedUninherited = new UninheritedLine(removedLine.code.Split(','), beatmap: null);
 
-                        if (addedUninherited.bpm.AlmostEqual(removedUninherited.bpm))
+                        if (!addedUninherited.bpm.AlmostEqual(removedUninherited.bpm))
                             changes.Add("BPM changed from " + removedUninherited.bpm +
                                         " to " + addedUninherited.bpm + ".");
                     }
-                    else if (addedLine.svMult.AlmostEqual(removedLine.svMult))
+                    else if (!addedLine.svMult.AlmostEqual(removedLine.svMult))
                         changes.Add("Slider velocity multiplier changed from " + removedLine.svMult +
                                     " to " + addedLine.svMult + ".");
 
