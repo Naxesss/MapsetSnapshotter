@@ -51,229 +51,17 @@ namespace MapsetSnapshotter.translators
                 string type = addedObject.GetObjectType();
 
                 bool found = false;
-                foreach (HitObject removedObject in removedHitObjects.Select(aTuple => aTuple.Item2).ToList())
+                List<HitObject> removedObjects = removedHitObjects.Select(aTuple => aTuple.Item2).ToList();
+                for (int removedIndex = 0; removedIndex < removedObjects.Count; ++removedIndex)
                 {
+                    HitObject removedObject = removedObjects[removedIndex];
                     if (addedObject.time == removedObject.time)
                     {
                         string removedType = removedObject.GetObjectType();
 
                         if (type == removedType)
                         {
-                            List<string> changes = new List<string>();
-
-                            if (addedObject.Position != removedObject.Position)
-                                changes.Add("Moved from " + removedObject.Position.X + "; " + removedObject.Position.Y +
-                                    " to " + addedObject.Position.X + "; " + addedObject.Position.Y + ".");
-
-                            if (addedObject.hitSound != removedObject.hitSound)
-                            {
-                                foreach (HitObject.HitSound hitSound in Enum.GetValues(typeof(HitObject.HitSound)))
-                                {
-                                    if (addedObject.HasHitSound(hitSound) && !removedObject.HasHitSound(hitSound))
-                                        changes.Add("Added " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() + ".");
-
-                                    if (!addedObject.HasHitSound(hitSound) && removedObject.HasHitSound(hitSound))
-                                        changes.Add("Removed " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() + ".");
-                                }
-                            }
-
-                            if (addedObject.sampleset != removedObject.sampleset)
-                                changes.Add("Sampleset changed from " +
-                                    removedObject.sampleset.ToString().ToLower() + " to " +
-                                    addedObject.sampleset.ToString().ToLower() + ".");
-
-                            if (addedObject.addition != removedObject.addition)
-                                changes.Add("Addition changed from " +
-                                    removedObject.addition.ToString().ToLower() + " to " +
-                                    addedObject.addition.ToString().ToLower() + ".");
-
-                            if ((addedObject.customIndex ?? 0) != (removedObject.customIndex ?? 0))
-                                changes.Add("Custom sampleset index changed from " +
-                                    (removedObject.customIndex?.ToString() ?? "default") + " to " +
-                                    (addedObject.customIndex?.ToString() ?? "default") + ".");
-
-                            if (addedObject.type.HasFlag(HitObject.Type.NewCombo) && !removedObject.type.HasFlag(HitObject.Type.NewCombo))
-                                changes.Add("Added new combo.");
-
-                            if (!addedObject.type.HasFlag(HitObject.Type.NewCombo) && removedObject.type.HasFlag(HitObject.Type.NewCombo))
-                                changes.Add("Removed new combo.");
-
-                            int addedComboSkip = 0;
-                            if (addedObject.type.HasFlag(HitObject.Type.ComboSkip1))
-                                addedComboSkip += 1;
-                            if (addedObject.type.HasFlag(HitObject.Type.ComboSkip2))
-                                addedComboSkip += 2;
-                            if (addedObject.type.HasFlag(HitObject.Type.ComboSkip3))
-                                addedComboSkip += 4;
-
-                            int removedComboSkip = 0;
-                            if (removedObject.type.HasFlag(HitObject.Type.ComboSkip1))
-                                removedComboSkip += 1;
-                            if (removedObject.type.HasFlag(HitObject.Type.ComboSkip2))
-                                removedComboSkip += 2;
-                            if (removedObject.type.HasFlag(HitObject.Type.ComboSkip3))
-                                removedComboSkip += 4;
-
-                            if (addedComboSkip != removedComboSkip)
-                                changes.Add("Changed skipped combo amount from " + removedComboSkip + " to " +
-                                    addedComboSkip + ".");
-
-                            if (addedObject.filename != removedObject.filename)
-                                changes.Add("Hit sound filename changed from " + removedObject.filename + " to " +
-                                        addedObject.filename + ".");
-
-                            if (addedObject.volume != removedObject.volume)
-                                changes.Add("Hit sound volume changed from " + (removedObject.volume?.ToString() ?? "inherited") + " to " +
-                                        (addedObject.volume?.ToString() ?? "inherited") + ".");
-
-                            if (type == "Slider")
-                            {
-                                Slider addedSlider = new Slider(addedObject.code.Split(','), null);
-                                Slider removedSlider = new Slider(removedObject.code.Split(','), null);
-
-                                if (addedSlider.curveType != removedSlider.curveType)
-                                    changes.Add("Curve type changed from " + removedSlider.curveType + " to " +
-                                        addedSlider.curveType + ".");
-
-                                if (addedSlider.edgeAmount != removedSlider.edgeAmount)
-                                    changes.Add("Reverse amount changed from " + (removedSlider.edgeAmount - 1) + " to " +
-                                         (addedSlider.edgeAmount - 1) + ".");
-
-                                if (addedSlider.endSampleset != removedSlider.endSampleset)
-                                    changes.Add("Tail sampleset changed from " +
-                                        removedSlider.endSampleset.ToString().ToLower() + " to " +
-                                        addedSlider.endSampleset.ToString().ToLower() + ".");
-
-                                if (addedSlider.endAddition != removedSlider.endAddition)
-                                    changes.Add("Tail addition changed from " +
-                                        removedSlider.endAddition.ToString().ToLower() + " to " +
-                                        addedSlider.endAddition.ToString().ToLower() + ".");
-
-                                if (addedSlider.endHitSound != removedSlider.endHitSound)
-                                {
-                                    foreach (HitObject.HitSound hitSound in Enum.GetValues(typeof(HitObject.HitSound)))
-                                    {
-                                        if (addedSlider.HasHitSound(hitSound) && !removedSlider.HasHitSound(hitSound))
-                                            changes.Add("Added " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() +
-                                                " to tail.");
-
-                                        if (!addedSlider.HasHitSound(hitSound) && removedSlider.HasHitSound(hitSound))
-                                            changes.Add("Removed " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() +
-                                                " from tail.");
-                                    }
-                                }
-
-                                if (addedSlider.pixelLength != removedSlider.pixelLength)
-                                    changes.Add("Pixel length changed from " + removedSlider.pixelLength +
-                                        " to " + addedSlider.pixelLength + ".");
-
-                                if (addedSlider.nodePositions.Count == removedSlider.nodePositions.Count)
-                                {
-                                    // The first node is the start, which we already checked.
-                                    for (int i = 1; i < addedSlider.nodePositions.Count; ++i)
-                                    {
-                                        if (addedSlider.nodePositions[i] != removedSlider.nodePositions[i])
-                                            changes.Add("Node " + (i + 1) + " moved from " +
-                                                removedSlider.nodePositions[i].X + "; " + removedSlider.nodePositions[i].Y + " to " +
-                                                addedSlider.nodePositions[i].X + "; " + addedSlider.nodePositions[i].Y + ".");
-                                    }
-                                }
-                                else
-                                    changes.Add("Node count changed from " + removedSlider.nodePositions.Count +
-                                        " to " + addedSlider.nodePositions.Count + " (possibly positions as well).");
-
-                                if (addedSlider.edgeAmount == removedSlider.edgeAmount)
-                                {
-                                    for (int i = 0; i < addedSlider.reverseSamplesets.Count; ++i)
-                                    {
-                                        if (addedSlider.reverseSamplesets.ElementAtOrDefault(i) !=
-                                            removedSlider.reverseSamplesets.ElementAtOrDefault(i))
-                                        {
-                                            changes.Add("Reverse #" + (i + 1) + " sampleset changed from " +
-                                                removedSlider.reverseSamplesets.ElementAtOrDefault(i).ToString().ToLower() + " to " +
-                                                addedSlider.reverseSamplesets.ElementAtOrDefault(i).ToString().ToLower() + ".");
-                                        }
-                                    }
-
-                                    for (int i = 0; i < addedSlider.reverseAdditions.Count; ++i)
-                                    {
-                                        if (addedSlider.reverseAdditions.ElementAtOrDefault(i) !=
-                                            removedSlider.reverseAdditions.ElementAtOrDefault(i))
-                                        {
-                                            changes.Add("Reverse #" + (i + 1) + " addition changed from " +
-                                                removedSlider.reverseAdditions.ElementAtOrDefault(i).ToString().ToLower() + " to " +
-                                                addedSlider.reverseAdditions.ElementAtOrDefault(i).ToString().ToLower() + ".");
-                                        }
-                                    }
-
-                                    for (int i = 0; i < addedSlider.reverseAdditions.Count; ++i)
-                                    {
-                                        if (addedSlider.reverseHitSounds.ElementAtOrDefault(i) !=
-                                            removedSlider.reverseHitSounds.ElementAtOrDefault(i))
-                                        {
-                                            foreach (HitObject.HitSound hitSound in Enum.GetValues(typeof(HitObject.HitSound)))
-                                            {
-                                                if (addedSlider.reverseHitSounds.ElementAtOrDefault(i).HasFlag(hitSound) &&
-                                                    !removedSlider.reverseHitSounds.ElementAtOrDefault(i).HasFlag(hitSound))
-                                                    changes.Add("Added " +
-                                                        Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() +
-                                                        " to reverse #" + (i + 1) + ".");
-
-                                                if (!addedSlider.reverseHitSounds.ElementAtOrDefault(i).HasFlag(hitSound) &&
-                                                    removedSlider.reverseHitSounds.ElementAtOrDefault(i).HasFlag(hitSound))
-                                                    changes.Add("Removed " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() +
-                                                        " from reverse #" + (i + 1) + ".");
-                                            }
-                                        }
-                                    }
-                                }
-
-                                if (addedSlider.startHitSound != removedSlider.startHitSound)
-                                {
-                                    foreach (HitObject.HitSound hitSound in Enum.GetValues(typeof(HitObject.HitSound)))
-                                    {
-                                        if (addedSlider.startHitSound.HasFlag(hitSound) &&
-                                            !removedSlider.startHitSound.HasFlag(hitSound))
-                                            changes.Add("Added " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() +
-                                                " to head.");
-
-                                        if (!addedSlider.startHitSound.HasFlag(hitSound) &&
-                                            removedSlider.startHitSound.HasFlag(hitSound))
-                                            changes.Add("Removed " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() +
-                                                " from head.");
-                                    }
-                                }
-
-                                if (addedSlider.startSampleset != removedSlider.startSampleset)
-                                    changes.Add("Head sampleset changed from " +
-                                        removedSlider.startSampleset.ToString().ToLower() + " to " +
-                                        addedSlider.startSampleset.ToString().ToLower() + ".");
-
-                                if (addedSlider.startAddition != removedSlider.startAddition)
-                                    changes.Add("Head addition changed from " +
-                                        removedSlider.startAddition.ToString().ToLower() + " to " +
-                                        addedSlider.startAddition.ToString().ToLower() + ".");
-                            }
-
-                            if (type == "Spinner")
-                            {
-                                Spinner addedSpinner = new Spinner(addedObject.code.Split(','), null);
-                                Spinner removedSpinner = new Spinner(removedObject.code.Split(','), null);
-
-                                if (addedSpinner.endTime != removedSpinner.endTime)
-                                    changes.Add("End time changed from " + removedSpinner.endTime + " to " +
-                                        addedSpinner.endTime + ".");
-                            }
-
-                            if (type == "Hold note")
-                            {
-                                HoldNote addedNote = new HoldNote(addedObject.code.Split(','), null);
-                                HoldNote removedNote = new HoldNote(removedObject.code.Split(','), null);
-
-                                if (addedNote.endTime != removedNote.endTime)
-                                    changes.Add("End time changed from " + removedNote.endTime + " to " +
-                                        addedNote.endTime + ".");
-                            }
+                            List<string> changes = GetChanges(addedObject, removedObject).ToList();
 
                             if (changes.Count == 1)
                                 yield return new DiffInstance(stamp + changes[0],
@@ -285,6 +73,14 @@ namespace MapsetSnapshotter.translators
                             found = true;
                             removedHitObjects.RemoveAll(aTuple => aTuple.Item2.code == removedObject.code);
                         }
+                    }
+                    else
+                    {
+                        // First check all following objects and see what happened to them. Once we get to a point where
+                        // time and properties match up again, we can go back here and check these until that point.
+
+                        // If the only difference is time, the object was most likely just offset.
+                        
                     }
                 }
 
@@ -303,6 +99,224 @@ namespace MapsetSnapshotter.translators
 
                 yield return new DiffInstance(stamp + type + " removed.",
                     Section, DiffType.Removed, new List<string>(), removedDiff.snapshotCreationDate);
+            }
+        }
+
+        private IEnumerable<string> GetChanges(HitObject addedObject, HitObject removedObject)
+        {
+            if (addedObject.Position != removedObject.Position)
+                yield return "Moved from " + removedObject.Position.X + "; " + removedObject.Position.Y +
+                    " to " + addedObject.Position.X + "; " + addedObject.Position.Y + ".";
+
+            if (addedObject.hitSound != removedObject.hitSound)
+            {
+                foreach (HitObject.HitSound hitSound in Enum.GetValues(typeof(HitObject.HitSound)))
+                {
+                    if (addedObject.HasHitSound(hitSound) && !removedObject.HasHitSound(hitSound))
+                        yield return "Added " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() + ".";
+
+                    if (!addedObject.HasHitSound(hitSound) && removedObject.HasHitSound(hitSound))
+                        yield return "Removed " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() + ".";
+                }
+            }
+
+            if (addedObject.sampleset != removedObject.sampleset)
+                yield return "Sampleset changed from " +
+                    removedObject.sampleset.ToString().ToLower() + " to " +
+                    addedObject.sampleset.ToString().ToLower() + ".";
+
+            if (addedObject.addition != removedObject.addition)
+                yield return "Addition changed from " +
+                    removedObject.addition.ToString().ToLower() + " to " +
+                    addedObject.addition.ToString().ToLower() + ".";
+
+            if ((addedObject.customIndex ?? 0) != (removedObject.customIndex ?? 0))
+                yield return "Custom sampleset index changed from " +
+                    (removedObject.customIndex?.ToString() ?? "default") + " to " +
+                    (addedObject.customIndex?.ToString() ?? "default") + ".";
+
+            if (addedObject.type.HasFlag(HitObject.Type.NewCombo) && !removedObject.type.HasFlag(HitObject.Type.NewCombo))
+                yield return "Added new combo.";
+
+            if (!addedObject.type.HasFlag(HitObject.Type.NewCombo) && removedObject.type.HasFlag(HitObject.Type.NewCombo))
+                yield return "Removed new combo.";
+
+            int addedComboSkip = 0;
+            if (addedObject.type.HasFlag(HitObject.Type.ComboSkip1))
+                addedComboSkip += 1;
+            if (addedObject.type.HasFlag(HitObject.Type.ComboSkip2))
+                addedComboSkip += 2;
+            if (addedObject.type.HasFlag(HitObject.Type.ComboSkip3))
+                addedComboSkip += 4;
+
+            int removedComboSkip = 0;
+            if (removedObject.type.HasFlag(HitObject.Type.ComboSkip1))
+                removedComboSkip += 1;
+            if (removedObject.type.HasFlag(HitObject.Type.ComboSkip2))
+                removedComboSkip += 2;
+            if (removedObject.type.HasFlag(HitObject.Type.ComboSkip3))
+                removedComboSkip += 4;
+
+            if (addedComboSkip != removedComboSkip)
+                yield return "Changed skipped combo amount from " + removedComboSkip + " to " +
+                    addedComboSkip + ".";
+
+            if (addedObject.filename != removedObject.filename)
+                yield return "Hit sound filename changed from " + removedObject.filename + " to " +
+                        addedObject.filename + ".";
+
+            if (addedObject.volume != removedObject.volume)
+                yield return "Hit sound volume changed from " + (removedObject.volume?.ToString() ?? "inherited") + " to " +
+                        (addedObject.volume?.ToString() ?? "inherited") + ".";
+
+            string type = addedObject.GetObjectType();
+            if (type == "Slider")
+            {
+                Slider addedSlider = new Slider(addedObject.code.Split(','), null);
+                Slider removedSlider = new Slider(removedObject.code.Split(','), null);
+
+                if (addedSlider.curveType != removedSlider.curveType)
+                    yield return "Curve type changed from " + removedSlider.curveType + " to " +
+                        addedSlider.curveType + ".";
+
+                if (addedSlider.edgeAmount != removedSlider.edgeAmount)
+                    yield return "Reverse amount changed from " + (removedSlider.edgeAmount - 1) + " to " +
+                         (addedSlider.edgeAmount - 1) + ".";
+
+                if (addedSlider.endSampleset != removedSlider.endSampleset)
+                    yield return "Tail sampleset changed from " +
+                        removedSlider.endSampleset.ToString().ToLower() + " to " +
+                        addedSlider.endSampleset.ToString().ToLower() + ".";
+
+                if (addedSlider.endAddition != removedSlider.endAddition)
+                    yield return "Tail addition changed from " +
+                        removedSlider.endAddition.ToString().ToLower() + " to " +
+                        addedSlider.endAddition.ToString().ToLower() + ".";
+
+                if (addedSlider.endHitSound != removedSlider.endHitSound)
+                {
+                    foreach (HitObject.HitSound hitSound in Enum.GetValues(typeof(HitObject.HitSound)))
+                    {
+                        if (addedSlider.HasHitSound(hitSound) && !removedSlider.HasHitSound(hitSound))
+                            yield return "Added " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() +
+                                " to tail.";
+
+                        if (!addedSlider.HasHitSound(hitSound) && removedSlider.HasHitSound(hitSound))
+                            yield return "Removed " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() +
+                                " from tail.";
+                    }
+                }
+
+                if (addedSlider.pixelLength != removedSlider.pixelLength)
+                    yield return "Pixel length changed from " + removedSlider.pixelLength +
+                        " to " + addedSlider.pixelLength + ".";
+
+                if (addedSlider.nodePositions.Count == removedSlider.nodePositions.Count)
+                {
+                    // The first node is the start, which we already checked.
+                    for (int i = 1; i < addedSlider.nodePositions.Count; ++i)
+                    {
+                        if (addedSlider.nodePositions[i] != removedSlider.nodePositions[i])
+                            yield return "Node " + (i + 1) + " moved from " +
+                                removedSlider.nodePositions[i].X + "; " + removedSlider.nodePositions[i].Y + " to " +
+                                addedSlider.nodePositions[i].X + "; " + addedSlider.nodePositions[i].Y + ".";
+                    }
+                }
+                else
+                    yield return "Node count changed from " + removedSlider.nodePositions.Count +
+                        " to " + addedSlider.nodePositions.Count + " (possibly positions as well).";
+
+                if (addedSlider.edgeAmount == removedSlider.edgeAmount)
+                {
+                    for (int i = 0; i < addedSlider.reverseSamplesets.Count; ++i)
+                    {
+                        if (addedSlider.reverseSamplesets.ElementAtOrDefault(i) !=
+                            removedSlider.reverseSamplesets.ElementAtOrDefault(i))
+                        {
+                            yield return "Reverse #" + (i + 1) + " sampleset changed from " +
+                                removedSlider.reverseSamplesets.ElementAtOrDefault(i).ToString().ToLower() + " to " +
+                                addedSlider.reverseSamplesets.ElementAtOrDefault(i).ToString().ToLower() + ".";
+                        }
+                    }
+
+                    for (int i = 0; i < addedSlider.reverseAdditions.Count; ++i)
+                    {
+                        if (addedSlider.reverseAdditions.ElementAtOrDefault(i) !=
+                            removedSlider.reverseAdditions.ElementAtOrDefault(i))
+                        {
+                            yield return "Reverse #" + (i + 1) + " addition changed from " +
+                                removedSlider.reverseAdditions.ElementAtOrDefault(i).ToString().ToLower() + " to " +
+                                addedSlider.reverseAdditions.ElementAtOrDefault(i).ToString().ToLower() + ".";
+                        }
+                    }
+
+                    for (int i = 0; i < addedSlider.reverseAdditions.Count; ++i)
+                    {
+                        if (addedSlider.reverseHitSounds.ElementAtOrDefault(i) !=
+                            removedSlider.reverseHitSounds.ElementAtOrDefault(i))
+                        {
+                            foreach (HitObject.HitSound hitSound in Enum.GetValues(typeof(HitObject.HitSound)))
+                            {
+                                if (addedSlider.reverseHitSounds.ElementAtOrDefault(i).HasFlag(hitSound) &&
+                                    !removedSlider.reverseHitSounds.ElementAtOrDefault(i).HasFlag(hitSound))
+                                    yield return "Added " +
+                                        Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() +
+                                        " to reverse #" + (i + 1) + ".";
+
+                                if (!addedSlider.reverseHitSounds.ElementAtOrDefault(i).HasFlag(hitSound) &&
+                                    removedSlider.reverseHitSounds.ElementAtOrDefault(i).HasFlag(hitSound))
+                                    yield return "Removed " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() +
+                                        " from reverse #" + (i + 1) + ".";
+                            }
+                        }
+                    }
+                }
+
+                if (addedSlider.startHitSound != removedSlider.startHitSound)
+                {
+                    foreach (HitObject.HitSound hitSound in Enum.GetValues(typeof(HitObject.HitSound)))
+                    {
+                        if (addedSlider.startHitSound.HasFlag(hitSound) &&
+                            !removedSlider.startHitSound.HasFlag(hitSound))
+                            yield return "Added " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() +
+                                " to head.";
+
+                        if (!addedSlider.startHitSound.HasFlag(hitSound) &&
+                            removedSlider.startHitSound.HasFlag(hitSound))
+                            yield return "Removed " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() +
+                                " from head.";
+                    }
+                }
+
+                if (addedSlider.startSampleset != removedSlider.startSampleset)
+                    yield return "Head sampleset changed from " +
+                        removedSlider.startSampleset.ToString().ToLower() + " to " +
+                        addedSlider.startSampleset.ToString().ToLower() + ".";
+
+                if (addedSlider.startAddition != removedSlider.startAddition)
+                    yield return "Head addition changed from " +
+                        removedSlider.startAddition.ToString().ToLower() + " to " +
+                        addedSlider.startAddition.ToString().ToLower() + ".";
+            }
+
+            if (type == "Spinner")
+            {
+                Spinner addedSpinner = new Spinner(addedObject.code.Split(','), null);
+                Spinner removedSpinner = new Spinner(removedObject.code.Split(','), null);
+
+                if (addedSpinner.endTime != removedSpinner.endTime)
+                    yield return "End time changed from " + removedSpinner.endTime + " to " +
+                        addedSpinner.endTime + ".";
+            }
+
+            if (type == "Hold note")
+            {
+                HoldNote addedNote = new HoldNote(addedObject.code.Split(','), null);
+                HoldNote removedNote = new HoldNote(removedObject.code.Split(','), null);
+
+                if (addedNote.endTime != removedNote.endTime)
+                    yield return "End time changed from " + removedNote.endTime + " to " +
+                        addedNote.endTime + ".";
             }
         }
     }
