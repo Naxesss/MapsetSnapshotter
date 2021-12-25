@@ -128,7 +128,7 @@ namespace MapsetSnapshotter.translators
                     addedObject.addition.ToString().ToLower() + ".";
 
             if ((addedObject.customIndex ?? 0) != (removedObject.customIndex ?? 0))
-                yield return "Custom sampleset index changed from " +
+                yield return "Custom sampleset index override changed from " +
                     (removedObject.customIndex?.ToString() ?? "default") + " to " +
                     (addedObject.customIndex?.ToString() ?? "default") + ".";
 
