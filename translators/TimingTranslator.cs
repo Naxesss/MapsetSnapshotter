@@ -76,6 +76,11 @@ namespace MapsetSnapshotter.translators
                         changes.Add("Sampleset changed from " +
                                     removedLine.sampleset.ToString().ToLower() + " to " +
                                     addedLine.sampleset.ToString().ToLower() + ".");
+                            
+                    if (addedLine.customIndex != removedLine.customIndex)
+                        changes.Add("Custom sampleset index changed from " +
+                                    removedLine.customIndex.ToString().ToLower() + " to " +
+                                    addedLine.customIndex.ToString().ToLower() + ".");
 
                     if (addedLine.volume.AlmostEqual(removedLine.volume))
                         changes.Add("Volume changed from " + removedLine.volume +
