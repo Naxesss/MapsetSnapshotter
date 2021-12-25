@@ -5,13 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MathNet.Numerics;
 using static MapsetSnapshotter.Snapshotter;
 
 namespace MapsetSnapshotter.translators
 {
     public class EventsTranslator : DiffTranslator
     {
-        public override string Section { get => "Events"; }
+        public override string Section => "Events";
 
         /*  First argument
             0 : Background
@@ -54,49 +55,51 @@ namespace MapsetSnapshotter.translators
 
             mDictionary.RemoveAll(aPair => aPair.Key == 2);
 
-            foreach (Tuple<Break, DiffInstance> added in addedBreaks)
+            foreach (var (@break, diffInstance) in addedBreaks)
             {
-                Tuple<Break, DiffInstance> removedStart = removedBreaks.FirstOrDefault(aTuple => aTuple.Item1.time == added.Item1.time);
+                Tuple<Break, DiffInstance> removedStart = removedBreaks.FirstOrDefault(aTuple => aTuple.Item1.time.AlmostEqual(@break.time));
 
-                string startStamp = Timestamp.Get(added.Item1.time);
-                string endStamp = Timestamp.Get(added.Item1.endTime);
+                string startStamp = Timestamp.Get(@break.time);
+                string endStamp = Timestamp.Get(@break.endTime);
                 if (removedStart != null)
                 {
-                    string newEndStamp = Timestamp.Get(removedStart.Item1.endTime);
+                    string oldStartStamp = Timestamp.Get(removedStart.Item1.time);
+                    string oldEndStamp = Timestamp.Get(removedStart.Item1.endTime);
                     yield return new DiffInstance(
-                        "Break from " + startStamp + " to " + endStamp +
-                        " now ends at " + newEndStamp + " instead.",
-                        Section, DiffType.Changed, new List<string>(), added.Item2.snapshotCreationDate);
+                        "Break from " + oldStartStamp + " to " + oldEndStamp +
+                        " now ends at " + endStamp + " instead.",
+                        Section, DiffType.Changed, new List<string>(), diffInstance.snapshotCreationDate);
 
                     removedBreaks.Remove(removedStart);
                 }
                 else
                 {
-                    Tuple<Break, DiffInstance> removedEnd = removedBreaks.FirstOrDefault(aTuple => aTuple.Item1.endTime == added.Item1.endTime);
+                    Tuple<Break, DiffInstance> removedEnd = removedBreaks.FirstOrDefault(aTuple => aTuple.Item1.endTime.AlmostEqual(@break.endTime));
 
                     if (removedEnd != null)
                     {
-                        string newStamp = Timestamp.Get(removedEnd.Item1.time);
+                        string oldStartStamp = Timestamp.Get(removedEnd.Item1.time);
+                        string oldEndStamp = Timestamp.Get(removedEnd.Item1.endTime);
                         yield return new DiffInstance(
-                            "Break from " + startStamp + " to " + endStamp +
-                            " now starts at " + newStamp + " instead.",
-                            Section, DiffType.Changed, new List<string>(), added.Item2.snapshotCreationDate);
+                            "Break from " + oldStartStamp + " to " + oldEndStamp +
+                            " now starts at " + startStamp + " instead.",
+                            Section, DiffType.Changed, new List<string>(), diffInstance.snapshotCreationDate);
 
                         removedBreaks.Remove(removedEnd);
                     }
                     else
                         yield return new DiffInstance("Break from " + startStamp + " to " + endStamp + " added.",
-                            Section, DiffType.Added, new List<string>(), added.Item2.snapshotCreationDate);
+                            Section, DiffType.Added, new List<string>(), diffInstance.snapshotCreationDate);
                 }
             }
 
-            foreach (Tuple<Break, DiffInstance> removed in removedBreaks)
+            foreach (var (@break, diffInstance) in removedBreaks)
             {
-                string startStamp = Timestamp.Get(removed.Item1.time);
-                string endStamp = Timestamp.Get(removed.Item1.endTime);
+                string startStamp = Timestamp.Get(@break.time);
+                string endStamp = Timestamp.Get(@break.endTime);
 
                 yield return new DiffInstance("Break from " + startStamp + " to " + endStamp + " removed.",
-                        Section, DiffType.Removed, new List<string>(), removed.Item2.snapshotCreationDate);
+                        Section, DiffType.Removed, new List<string>(), diffInstance.snapshotCreationDate);
             }
         }
     }
