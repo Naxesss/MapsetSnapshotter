@@ -5,15 +5,15 @@ using MapsetSnapshotter.objects;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using MathNet.Numerics;
 using static MapsetSnapshotter.Snapshotter;
 
 namespace MapsetSnapshotter.translators
 {
     public class HitObjectsTranslator : DiffTranslator
     {
-        public override string Section { get => "HitObjects"; }
-        public override string TranslatedSection { get => "Hit Objects"; }
+        public override string Section => "HitObjects";
+        public override string TranslatedSection => "Hit Objects";
 
         public override IEnumerable<DiffInstance> Translate(IEnumerable<DiffInstance> aDiffs)
         {
@@ -42,37 +42,34 @@ namespace MapsetSnapshotter.translators
                     yield return diff;
             }
 
-            foreach (Tuple<DiffInstance, HitObject> addedTuple in addedHitObjects)
+            foreach (var (addedDiff, addedObject) in addedHitObjects)
             {
-                DiffInstance addedDiff = addedTuple.Item1;
-                HitObject addedObject = addedTuple.Item2;
-
                 string stamp = Timestamp.Get(addedObject.time);
                 string type = addedObject.GetObjectType();
 
                 bool found = false;
                 List<HitObject> removedObjects = removedHitObjects.Select(aTuple => aTuple.Item2).ToList();
-                for (int removedIndex = 0; removedIndex < removedObjects.Count; ++removedIndex)
+                foreach (var removedObject in removedObjects)
                 {
-                    HitObject removedObject = removedObjects[removedIndex];
-                    if (addedObject.time == removedObject.time)
+                    if (addedObject.time.AlmostEqual(removedObject.time))
                     {
                         string removedType = removedObject.GetObjectType();
 
-                        if (type == removedType)
-                        {
-                            List<string> changes = GetChanges(addedObject, removedObject).ToList();
+                        if (type != removedType)
+                            continue;
+                        
+                        List<string> changes = GetChanges(addedObject, removedObject).ToList();
 
-                            if (changes.Count == 1)
-                                yield return new DiffInstance(stamp + changes[0],
-                                    Section, DiffType.Changed, new List<string>(), addedDiff.snapshotCreationDate);
-                            else if (changes.Count > 1)
-                                yield return new DiffInstance(stamp + type + " changed.",
-                                    Section, DiffType.Changed, changes, addedDiff.snapshotCreationDate);
+                        if (changes.Count == 1)
+                            yield return new DiffInstance(stamp + changes[0],
+                                Section, DiffType.Changed, new List<string>(), addedDiff.snapshotCreationDate);
+                        else if (changes.Count > 1)
+                            yield return new DiffInstance(stamp + type + " changed.",
+                                Section, DiffType.Changed, changes, addedDiff.snapshotCreationDate);
 
-                            found = true;
-                            removedHitObjects.RemoveAll(aTuple => aTuple.Item2.code == removedObject.code);
-                        }
+                        found = true;
+                        var o = removedObject;
+                        removedHitObjects.RemoveAll(aTuple => aTuple.Item2.code == o.code);
                     }
                     else
                     {
@@ -113,10 +110,10 @@ namespace MapsetSnapshotter.translators
                 foreach (HitObject.HitSound hitSound in Enum.GetValues(typeof(HitObject.HitSound)))
                 {
                     if (addedObject.HasHitSound(hitSound) && !removedObject.HasHitSound(hitSound))
-                        yield return "Added " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() + ".";
+                        yield return "Added " + Enum.GetName(typeof(HitObject.HitSound), hitSound)?.ToLower() + ".";
 
                     if (!addedObject.HasHitSound(hitSound) && removedObject.HasHitSound(hitSound))
-                        yield return "Removed " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() + ".";
+                        yield return "Removed " + Enum.GetName(typeof(HitObject.HitSound), hitSound)?.ToLower() + ".";
                 }
             }
 
@@ -198,16 +195,16 @@ namespace MapsetSnapshotter.translators
                     foreach (HitObject.HitSound hitSound in Enum.GetValues(typeof(HitObject.HitSound)))
                     {
                         if (addedSlider.HasHitSound(hitSound) && !removedSlider.HasHitSound(hitSound))
-                            yield return "Added " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() +
+                            yield return "Added " + Enum.GetName(typeof(HitObject.HitSound), hitSound)?.ToLower() +
                                 " to tail.";
 
                         if (!addedSlider.HasHitSound(hitSound) && removedSlider.HasHitSound(hitSound))
-                            yield return "Removed " + Enum.GetName(typeof(HitObject.HitSound), hitSound).ToLower() +
+                            yield return "Removed " + Enum.GetName(typeof(HitObject.HitSound), hitSound)?.ToLower() +
                                 " from tail.";
                     }
                 }
 
-                if (addedSlider.pixelLength != removedSlider.pixelLength)
+                if (addedSlider.pixelLength.AlmostEqual(removedSlider.pixelLength))
                     yield return "Pixel length changed from " + removedSlider.pixelLength +
                         " to " + addedSlider.pixelLength + ".";
 
@@ -304,7 +301,7 @@ namespace MapsetSnapshotter.translators
                 Spinner addedSpinner = new Spinner(addedObject.code.Split(','), null);
                 Spinner removedSpinner = new Spinner(removedObject.code.Split(','), null);
 
-                if (addedSpinner.endTime != removedSpinner.endTime)
+                if (addedSpinner.endTime.AlmostEqual(removedSpinner.endTime))
                     yield return "End time changed from " + removedSpinner.endTime + " to " +
                         addedSpinner.endTime + ".";
             }
@@ -314,7 +311,7 @@ namespace MapsetSnapshotter.translators
                 HoldNote addedNote = new HoldNote(addedObject.code.Split(','), null);
                 HoldNote removedNote = new HoldNote(removedObject.code.Split(','), null);
 
-                if (addedNote.endTime != removedNote.endTime)
+                if (addedNote.endTime.AlmostEqual(removedNote.endTime))
                     yield return "End time changed from " + removedNote.endTime + " to " +
                         addedNote.endTime + ".";
             }
